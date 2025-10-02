@@ -13,6 +13,7 @@ const Navigation = () => {
             <li className=''><Link to="/" className="hover:text-blue-600">Home</Link></li>
             <li className=''><Link to="/projects" className="hover:text-blue-600">Browse</Link></li>
             <li className=''><Link to="/upload" className="hover:text-blue-600">Upload</Link></li>
+            <li className=''><Link to="/ideavalidation" className="hover:text-blue-600">Validation</Link></li>
           </ul>
         </div>
 
