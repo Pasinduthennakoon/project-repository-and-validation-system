@@ -1,28 +1,49 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-export default function ProjectFilterSidebar({ onFilter }) {
+export default function ProjectFilterSidebar({ projects = [], onFilter }) {
   const [filters, setFilters] = useState({
     department: "",
     batch: "",
-    tags: [],
+    keywords: "",
+    tagsInput: "",
   });
 
-  const handleChange = (e) => {
-    setFilters({ ...filters, [e.target.name]: e.target.value });
+  const [departments, setDepartments] = useState([]);
+  const [batches, setBatches] = useState([]);
+
+  useEffect(() => {
+    const deptSet = [...new Set(projects.map(p => p.department || ""))].filter(Boolean);
+    const batchSet = [...new Set(projects.map(p => p.batch || ""))].filter(Boolean);
+    setDepartments(deptSet);
+    setBatches(batchSet);
+  }, [projects]);
+
+  const handleChange = e => {
+    const { name, value } = e.target;
+    setFilters({ ...filters, [name]: value });
   };
 
   const applyFilters = () => {
-    onFilter(filters);
+    const tags = filters.tagsInput
+      ? filters.tagsInput.split(",").map(t => t.trim().toLowerCase()).filter(t => t)
+      : [];
+
+    onFilter({
+      department: filters.department,
+      batch: filters.batch,
+      keywords: filters.keywords.trim(),
+      tags,
+    });
   };
 
   const clearFilters = () => {
-    const cleared = { department: "", batch: "", tags: [] };
+    const cleared = { department: "", batch: "", keywords: "", tagsInput: "" };
     setFilters(cleared);
-    onFilter(cleared); // reset in parent too
+    onFilter(cleared);
   };
 
   return (
-    <div className="w-64 bg-white shadow-md rounded-xl p-4">
+    <div className="w-full sm:w-64 bg-white shadow-md rounded-xl p-4">
       <h2 className="text-lg font-bold mb-4">Filter Projects</h2>
 
       {/* Department */}
@@ -34,9 +55,9 @@ export default function ProjectFilterSidebar({ onFilter }) {
         onChange={handleChange}
       >
         <option value="">All</option>
-        <option value="CS">Computer Science</option>
-        <option value="IT">Information Technology</option>
-        <option value="SE">Software Engineering</option>
+        {departments.map((dept, idx) => (
+          <option key={idx} value={dept}>{dept}</option>
+        ))}
       </select>
 
       {/* Batch */}
@@ -48,24 +69,34 @@ export default function ProjectFilterSidebar({ onFilter }) {
         onChange={handleChange}
       >
         <option value="">All</option>
-        <option value="2025">2025</option>
-        <option value="2024">2024</option>
-        <option value="2023">2023</option>
+        {batches.map((batch, idx) => (
+          <option key={idx} value={batch}>{batch}</option>
+        ))}
       </select>
+
+      {/* Keywords */}
+      <label className="block mb-2 text-sm font-medium">Keywords (Title / Abstract)</label>
+      <input
+        type="text"
+        name="keywords"
+        placeholder="Enter title or abstract"
+        className="w-full border rounded-md p-2 mb-4"
+        value={filters.keywords}
+        onChange={handleChange}
+      />
 
       {/* Tags */}
       <label className="block mb-2 text-sm font-medium">Tags</label>
       <input
         type="text"
-        name="tags"
+        name="tagsInput"
         placeholder="AI, IoT..."
         className="w-full border rounded-md p-2 mb-4"
-        value={filters.tags.join(",")}
-        onChange={(e) =>
-          setFilters({ ...filters, tags: e.target.value.split(",") })
-        }
+        value={filters.tagsInput}
+        onChange={handleChange}
       />
 
+      {/* Buttons */}
       <div className="flex gap-2">
         <button
           onClick={applyFilters}
