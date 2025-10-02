@@ -7,6 +7,8 @@ import Upload from "./Pages/Upload";
 import ProjectDetails from "./Pages/ProjectDetails";
 import Navigation from "./components/Navigation/Navigation";
 import Footer from "./components/Footer/Footer";
+import IdeaComparisonPage from "./Pages/IdeaComparisonPage";
+import { footerContent } from "./data/footerContent";
 
 
 function App() {
@@ -23,12 +25,13 @@ function App() {
             <Route path="/projects" element={<Projects />} />
             <Route path="/upload" element={<Upload />} />
             <Route path="/projects/:id" element={<ProjectDetails />} />
+            <Route path="/ideavalidation" element={<IdeaComparisonPage />} />
           </Routes>
         </div>
 
       </div>
       <div className="Footer">
-        <Footer/>
+        <Footer content={footerContent}/>
       </div>
     </Router>
   );
