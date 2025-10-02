@@ -2,12 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import ProjectFilterSidebar from "../components/Filters/ProjectFilterSidebar";
 import ProjectList from "../components/ProjectList/ProjectList";
-
-const sampleProjects = [
-  { id: 1, title: "AI-Powered LMS", department: "CS", batch: "2025" },
-  { id: 2, title: "Blockchain Voting", department: "IT", batch: "2024" },
-  { id: 3, title: "IoT Smart Farming", department: "CS", batch: "2024" },
-];
+import { sampleProjects } from "../data/data";
 
 const Projects = () => {
   const [query, setQuery] = useState("");
@@ -15,23 +10,39 @@ const Projects = () => {
 
   // Apply filters + search
   const filtered = sampleProjects.filter((p) => {
+    // General search bar (title, department, batch)
     const matchQuery =
       p.title.toLowerCase().includes(query.toLowerCase()) ||
       p.department.toLowerCase().includes(query.toLowerCase()) ||
-      p.batch.includes(query);
+      p.batch.toString().includes(query);
 
+    // Department filter
     const matchDepartment =
       !filters.department || p.department === filters.department;
 
+    // Batch filter
     const matchBatch = !filters.batch || p.batch === filters.batch;
 
-    return matchQuery && matchDepartment && matchBatch;
+    // Keywords filter (search inside title + abstract)
+    const matchKeywords =
+      !filters.keywords ||
+      p.title.toLowerCase().includes(filters.keywords.toLowerCase()) ||
+      (p.abstract && p.abstract.toLowerCase().includes(filters.keywords.toLowerCase()));
+
+    // Tags filter (case-insensitive)
+    const matchTags =
+      !filters.tags || filters.tags.length === 0 ||
+      filters.tags.every(tag =>
+        p.tags?.some(pt => pt.toLowerCase().includes(tag.toLowerCase().trim()))
+      );
+
+    return matchQuery && matchDepartment && matchBatch && matchKeywords && matchTags;
   });
 
   return (
-    <div className="flex gap-6 p-6">
+    <div className="flex flex-col md:flex-row gap-6 p-6">
       {/* Sidebar */}
-      <ProjectFilterSidebar onFilter={setFilters} />
+      <ProjectFilterSidebar projects={sampleProjects} onFilter={setFilters} />
 
       {/* Main Content */}
       <div className="flex-1">
@@ -48,28 +59,6 @@ const Projects = () => {
 
         {/* Project List */}
         <ProjectList projects={filtered} />
-
-        {/* OR inline list if you don’t want a separate component */}
-        {/* 
-        <ul className="space-y-3">
-          {filtered.map((project) => (
-            <li
-              key={project.id}
-              className="bg-white shadow rounded p-4"
-            >
-              <Link
-                to={`/projects/${project.id}`}
-                className="text-blue-600 font-semibold"
-              >
-                {project.title}
-              </Link>
-              <p className="text-sm text-gray-500">
-                {project.department} | Batch {project.batch}
-              </p>
-            </li>
-          ))}
-        </ul>
-        */}
       </div>
     </div>
   );
