@@ -10,25 +10,13 @@ function ProjectList({ projects }) {
       {projects.map((project) => (
         <div
           key={project.id}
-          className="bg-white shadow-lg rounded-xl p-4 hover:shadow-xl transition"
+          className="bg-white shadow-lg rounded-xl p-4 hover:shadow-xl transition min-h-32 flex flex-col"
         >
-          <h3 className="text-lg font-bold">{project.title}</h3>
-          <p className="text-sm text-gray-600">
-            {project.department} | Batch {project.batch}
-          </p>
-          <p className="text-gray-700 mt-2 line-clamp-3">{project.abstract}</p>
-
-          {/* Tags */}
-          <div className="flex flex-wrap gap-2 mt-3">
-            {project.tags &&
-              project.tags.map((tag, idx) => (
-                <span
-                  key={idx}
-                  className="px-2 py-1 text-xs bg-blue-100 text-blue-600 rounded-full"
-                >
-                  {tag}
-                </span>
-              ))}
+          <div className="flex-1">
+            <h3 className="text-lg font-bold">{project.title}</h3>
+            <p className="text-sm text-gray-600">
+              {project.department} | Batch {project.batch}
+            </p>
           </div>
 
           {/* Action */}
