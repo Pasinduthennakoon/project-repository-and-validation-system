@@ -1,28 +1,143 @@
-// ./components/Navigation/Navigation.jsx
-import React from 'react';
-import { Link } from 'react-router-dom';
+// src/components/Navigation/Navigation.jsx
+import React, { useState, useEffect } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import AuthModal from "../AuthModel/AuthModal";
+import { useAuth } from "../../context/AuthContext";
 
 const Navigation = () => {
-  return (
-    <nav className="flex items-center py-6 px-16 justify-between gap-40">
-      <div className='flex items-center gap-6'>
-        <a className='text-3xl font-bold text-blue-600 font-bold gap-8' href='/'>Research Repo.</a>
-      </div>
-        <div className="flex flex-wrap items-center gap-10 flex-1 font-bold">
-          <ul className='flex gap-14 text-gray-600 hover:text-black'>
-            <li className=''><Link to="/" className="hover:text-blue-600">Home</Link></li>
-            <li className=''><Link to="/projects" className="hover:text-blue-600">Browse</Link></li>
-            <li className=''><Link to="/upload" className="hover:text-blue-600">Upload</Link></li>
-            <li className=''><Link to="/ideavalidation" className="hover:text-blue-600">Validation</Link></li>
-          </ul>
-        </div>
+  const [showAuth, setShowAuth] = useState(false);
+  const [intendedPath, setIntendedPath] = useState(null);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
-        <div className='flex items-center gap-6'>
-          <div className='flex justify-center w-[100px] bg-blue-600 text-white rounded-md hover:bg-blue-700 font-bold'>
-            <input type="submit" className="px-4 py-2 outline-none" name='login' value="SIGN IN"/>
-          </div>
+  const handleProtectedClick = (path) => {
+    if (!user) {
+      setIntendedPath(path);
+      setShowAuth(true);
+    } else {
+      navigate(path);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      setShowAuth(false);
+      if (intendedPath) {
+        navigate(intendedPath);
+        setIntendedPath(null);
+      }
+    }
+  }, [user]);
+
+  const activeClass =
+    "text-blue-600 border-b-2 border-blue-600 pb-1 transition-all duration-200";
+  const normalClass =
+    "text-gray-600 hover:text-blue-600 transition-all duration-200";
+
+  // Role-based link mapping
+  const roleLinks = {
+    STUDENT: [
+      { path: "/projects", label: "Browse", protected: true },
+      { path: "/ideavalidation", label: "Validation", protected: true },
+      { path: "/upload", label: "Upload" },
+      { path: "/student/dashboard", label: "Dashboard" },
+    ],
+    SUPERVISOR: [
+      { path: "/projects", label: "Browse", protected: true },
+      { path: "/ideavalidation", label: "Validation", protected: true },
+      { path: "/lecturer/dashboard", label: "Review Projects" },
+      { path: "/supervisor/approvals", label: "Approvals" },
+    ],
+    ADMIN: [
+      { path: "/admin/dashboard", label: "Analyse" },
+      { path: "/admin/users", label: "User Management" },
+      { path: "/admin/approvals", label: "Signup Approvals" }
+    ],
+  };
+
+  const userLinks = roleLinks[user?.role] || [];
+
+  return (
+    <>
+      <nav className="flex items-center py-6 px-16 justify-between bg-white shadow-sm">
+        {/* Logo */}
+        <NavLink to="/" className="text-3xl font-bold text-blue-600">
+          Research Repo.
+        </NavLink>
+
+        {/* Navigation Links */}
+        <ul className="flex gap-10 font-semibold">
+          {/* Home is always visible */}
+          <li>
+            <NavLink
+              to="/"
+              end
+              className={({ isActive }) =>
+                isActive ? activeClass : normalClass
+              }
+            >
+              Home
+            </NavLink>
+          </li>
+
+          {/* Role-based links */}
+          {userLinks.map((link) => (
+            <li key={link.path}>
+              {link.protected ? (
+                <NavLink
+                  to={link.path}
+                  onClick={(e) => {
+                    if (!user) {
+                      e.preventDefault();
+                      handleProtectedClick(link.path);
+                    }
+                  }}
+                  className={({ isActive }) =>
+                    isActive ? activeClass : normalClass
+                  }
+                >
+                  {link.label}
+                </NavLink>
+              ) : (
+                <NavLink
+                  to={link.path}
+                  className={({ isActive }) =>
+                    isActive ? activeClass : normalClass
+                  }
+                >
+                  {link.label}
+                </NavLink>
+              )}
+            </li>
+          ))}
+        </ul>
+
+        {/* Auth Buttons */}
+        <div>
+          {!user ? (
+            <button
+              onClick={() => {
+                setIntendedPath(null);
+                setShowAuth(true);
+              }}
+              className="bg-blue-600 text-white px-4 py-2 rounded"
+            >
+              Sign In
+            </button>
+          ) : (
+            <button
+              onClick={logout}
+              className="bg-red-500 text-white px-4 py-2 rounded"
+            >
+              Logout
+            </button>
+          )}
         </div>
       </nav>
+
+      {/* Auth Modal */}
+      <AuthModal visible={showAuth} onClose={() => setShowAuth(false)} />
+    </>
   );
 };
 
