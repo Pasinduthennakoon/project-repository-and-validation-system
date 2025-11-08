@@ -18,7 +18,7 @@ function IdeaComparisonPage() {
     // Mock similarity check (replace later with backend API call)
     const mockSimilarity = Math.floor(Math.random() * 100);
 
-    if (mockSimilarity > 70) {
+    if (mockSimilarity > 40) {
       setResult({
         status: "duplicate",
         match_percentage: mockSimilarity,
@@ -43,12 +43,7 @@ function IdeaComparisonPage() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <input name="name" placeholder="Your Name" className="border p-2 w-full" required />
         <input name="email" placeholder="Email" className="border p-2 w-full" />
-        <select name="department" className="border p-2 w-full" required>
-          <option value="">Select Department</option>
-          <option value="CS">Computer Science</option>
-          <option value="IT">Information Technology</option>
-          <option value="ENG">Engineering</option>
-        </select>
+        <input name="department" placeholder="Department" className="border p-2 w-full" />
         <input name="batch" placeholder="Batch (e.g., 2025)" className="border p-2 w-full" required />
         <input name="title" placeholder="Project Title" className="border p-2 w-full" required />
         <textarea
