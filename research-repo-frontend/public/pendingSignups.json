@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "name": "New Supervisor",
+    "email": "newsupervisor@example.com",
+    "role": "SUPERVISOR",
+    "department": "Computer Science",
+    "status": "PENDING"
+  },
+  {
+    "id": 2,
+    "name": "New Admin",
+    "email": "newadmin@example.com",
+    "role": "ADMIN",
+    "department": "Administration",
+    "status": "PENDING"
+  }
+]
