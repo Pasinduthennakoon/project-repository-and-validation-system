@@ -6,11 +6,11 @@ function ProjectList({ projects }) {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 flex-1">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 flex-1">
       {projects.map((project) => (
         <div
           key={project.id}
-          className="bg-white shadow-lg rounded-xl p-4 hover:shadow-xl transition min-h-32 flex flex-col"
+          className="bg-white shadow-lg rounded-xl p-4 hover:shadow-xl transition min-h-48 flex flex-col"
         >
           <div className="flex-1">
             <h3 className="text-lg font-bold">{project.title}</h3>
