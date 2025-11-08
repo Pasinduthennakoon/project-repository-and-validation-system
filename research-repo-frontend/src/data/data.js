@@ -5,7 +5,7 @@ export const sampleProjects = [
     id: 1,
     title: "AI-Powered LMS",
     department: "Computer Science",
-    batch: "2025",
+    batch: "2023",
     abstract: "Analyze student performance with AI.",
     tags: ["AI", "LMS"],
     forks: 2,
