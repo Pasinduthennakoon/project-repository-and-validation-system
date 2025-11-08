@@ -5,27 +5,25 @@ import Github from "../components/Common/Github";
 import Document from "../components/Common/Document";
 import StudentCard from "../components/cards/StudentCard";
 import SupervisorCard from "../components/cards/SupervisorCard";
-import person from '../assets/img/Frame 1.png'
 import { useParams } from "react-router-dom";
-import { sampleProjects } from '../data/data';
-
+import { sampleProjects } from "../data/data";
 
 const ProjectPage = () => {
-
   const { id } = useParams();
-  const project = sampleProjects.find(p => p.id === parseInt(id));
+  const project = sampleProjects.find((p) => p.id === parseInt(id));
 
   if (!project) return <p className="p-4 text-gray-500">Project not found.</p>;
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-10">
+    <div className="max-w-7xl mx-auto px-6 py-10">
       {/* Title */}
       <h1 className="text-2xl font-bold text-gray-900">{project.title}</h1>
 
       {/* Repo Info */}
       <p className="text-gray-600 mt-2 mb-2">
-        Created: {project.created} &nbsp; | &nbsp;&nbsp;&nbsp; Forks: {project.forks} &nbsp;
-        | &nbsp;&nbsp;&nbsp; Watchers: {project.watchers} &nbsp; | &nbsp;&nbsp;&nbsp; Stars: {project.stars}
+        Created: {project.created} &nbsp; | &nbsp;&nbsp;&nbsp; Forks:{" "}
+        {project.forks} &nbsp; | &nbsp;&nbsp;&nbsp; Watchers: {project.watchers}{" "}
+        &nbsp; | &nbsp;&nbsp;&nbsp; Stars: {project.stars}
       </p>
       <hr className="border-black mb-6" />
 
@@ -45,32 +43,37 @@ const ProjectPage = () => {
         </div>
 
         <div className="flex  h-[200px] mt-6 p-6 pl-0 pr-0">
-          <div className="flex mt-6 h-[100px] w-[400px] border-2 border-gray-200 text-blue-600 hover:bg-blue-600 hover:text-white">
-            <div className="w-[100px] mt-[7px] ml-4">
-              <Github/>
+          <Link
+            to="/projectrepository"
+            className="flex mt-6 h-[100px] w-[500px] border-2 border-gray-200 text-blue-600 
+             hover:bg-blue-600 hover:text-white transition rounded-lg"
+          >
+            <div className="w-[100px] mt-[10px] ml-8">
+              <Github />
             </div>
-            <div className="mt-8">
+            <div className="mt-8 ml-11">
               <span className="text-xl font-bold">Project Repository</span>
             </div>
-          </div>
-          <div className="flex mt-6 ml-12 h-[100px] w-[400px] border-2 border-gray-200 text-blue-600 hover:bg-blue-600 hover:text-white">
-            <div className="w-[100px] mt-[10px] ml-4">
-              <Document/>
+          </Link>
+          <Link
+            to="/projectdocumentation"
+            className="flex mt-6 ml-12 h-[100px] w-[500px] border-2 border-gray-200 text-blue-600 
+             hover:bg-blue-600 hover:text-white transition rounded-lg"
+          >
+            <div className="w-[100px] mt-[10px] ml-8">
+              <Document />
             </div>
-            <div className="mt-8">
+            <div className="mt-8 ml-11">
               <span className="text-xl font-bold">Project Documentation</span>
             </div>
-          </div>
-
+          </Link>
         </div>
 
         {/* Team & Supervisors */}
-        <div className="mt-8 grid md:grid-cols-2 gap-6">
+        <div className="mt-8 grid md:grid-cols-3 gap-2">
           {/* Team */}
           <div>
-            <h2 className="text-lg font-semibold text-gray-800">
-              Student
-            </h2>
+            <h2 className="text-lg font-semibold text-gray-800">Student</h2>
             <ul className="mt-3 space-y-2 text-gray-700">
               {project.students.map((s, idx) => (
                 <StudentCard key={idx} student={s} />
@@ -80,9 +83,7 @@ const ProjectPage = () => {
 
           {/* Supervisors */}
           <div>
-            <h2 className="text-lg font-semibold text-gray-800">
-              Supervisor
-            </h2>
+            <h2 className="text-lg font-semibold text-gray-800">Supervisor</h2>
             <ul className="mt-3 space-y-2 text-gray-700">
               {project.supervisors.map((sup, idx) => (
                 <SupervisorCard key={idx} supervisor={sup} />
@@ -98,7 +99,7 @@ const ProjectPage = () => {
             {project.tags.map((tag, idx) => (
               <span
                 key={idx}
-                className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm"
+                className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold"
               >
                 {tag}
               </span>
@@ -111,7 +112,10 @@ const ProjectPage = () => {
           <h2 className="text-lg font-semibold text-gray-800">Languages</h2>
           <div className="flex gap-4 mt-2">
             {project.languages.map((lang, idx) => (
-              <div key={idx} className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
+              <div
+                key={idx}
+                className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold"
+              >
                 <span>{lang.name}</span>
                 <span className="text-gray-500 ml-2">{lang.percent}</span>
               </div>
