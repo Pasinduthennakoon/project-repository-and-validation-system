@@ -10,7 +10,7 @@ const HeroSection = () => {
                 <div className='text-left'>
                     <h2 className='text-2xl text-white'>Welcome to</h2>
                 </div>
-                <p className='mt-3 text-white sm:mt-5 sm:max-w-xl text-6xl hover:text-black'>
+                <p className='mt-3 text-white sm:mt-5 sm:max-w-xl text-6xl'>
                 Research Repo
                 </p>
                 <p className='mt-3 text-white sm:mt-5 sm:max-w-xl text-2xl'>
