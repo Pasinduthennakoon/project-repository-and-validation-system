@@ -13,30 +13,9 @@ const Footer = ({ content }) => {
         // Note: For Tailwind CSS to work, you must have it set up in your project
         <div className='bg-black text-white'>
             <div className='flex p-8 justify-around'>
-                {/* Check for items and map over them */}
-                {footerContent?.items && footerContent.items.map((item, index) => {
-                    // It is best practice to use a unique key for list items
-                    return (
-                        <div key={index} className='flex flex-col'>
-                            {/* Section Title */}
-                            <p className='text-[16px] pb-[10px]'>{item?.title}</p>
-                            
-                            {/* List of Links (if available) */}
-                            {item?.list && item.list.map((listitem, listIndex) => (
-                                <a 
-                                    key={listIndex} 
-                                    className='flex flex-col text-[12px] py-2 hover:text-gray-400 transition-colors' 
-                                    href={listitem?.path}
-                                >
-                                    {listitem?.label}
-                                </a>
-                            ))}
-
-                            {/* Description (for Location) */}
-                            {item?.description && <p>{item?.description}</p>}
-                        </div>
-                    );
-                })}
+                <p className='text-xl font-semibold'>
+                    {footerContent?.main}
+                </p>
             </div>
             
             {/* Social Media Icons Section */}
@@ -46,7 +25,7 @@ const Footer = ({ content }) => {
             </div>
 
             {/* Copyright Section */}
-            <p className='text-sm text-white text-center py-4'>
+            <p className='text-sm text-gray-300 text-center py-4'>
                 {footerContent?.copyright}
             </p>
         </div>
