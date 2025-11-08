@@ -11,8 +11,14 @@ import StudentDashboard from '../Pages/StudentDashboard'
 import LecturerDashboard from "../Pages/LecturerDashboard";
 import SupervisorApprovals from "../Pages/SupervisorApprovals";
 import PrivateRoute from "./PrivateRoute"; // ✅ import
+import RecentProjectsPage from "../Pages/RecentProjectsPage";
+import UserManagementPage from "../Pages/UserManagementPage";
+import AdminApprovalPage from "../Pages/AdminApprovalPage";
+import { useAuth } from "../context/AuthContext";
 
 const Routers = () => {
+    const { user } = useAuth();
+
     return (
         <div>
             <Routes>
@@ -93,6 +99,44 @@ const Routers = () => {
                         </PrivateRoute>
                     }
                 />
+
+                <Route
+                    path="/admin/dashboard"
+                    element={
+                        <PrivateRoute allowedRoles={["ADMIN"]}>
+                            <AdminDashboard />
+                        </PrivateRoute>
+                    }
+                />
+
+                <Route
+                    path="/admin/projects"
+                    element={
+                        <PrivateRoute allowedRoles={["ADMIN"]}>
+                            <RecentProjectsPage />
+                        </PrivateRoute>
+                    }
+                />
+
+                <Route
+                    path="/admin/users"
+                    element={
+                        <PrivateRoute allowedRoles={["ADMIN"]}>
+                            <UserManagementPage />
+                        </PrivateRoute>
+                    }
+                />
+
+                <Route
+                    path="/admin/approvals"
+                    element={
+                        <PrivateRoute allowedRoles={["ADMIN"]}>
+                            <AdminApprovalPage adminDepartment={user?.department} />
+                        </PrivateRoute>
+                    }
+                />
+
+
             </Routes>
         </div>
     );
