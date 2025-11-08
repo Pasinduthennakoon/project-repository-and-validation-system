@@ -1,0 +1,40 @@
+[
+  {
+    "id": 1,
+    "name": "Pasindu",
+    "email": "pasindu@example.com",
+    "password": "password123",
+    "role": "STUDENT",
+    "status": "APPROVED",
+    "department": "Computer Science",
+    "batch": "2025",
+    "reg": "E/19/001"
+  },
+  {
+    "id": 2,
+    "name": "Lecturer",
+    "email": "lecturer@example.com",
+    "password": "lecpass",
+    "role": "SUPERVISOR",
+    "status": "APPROVED",
+    "department": "Computer Science"
+  },
+  {
+    "id": 3,
+    "name": "Admin",
+    "email": "admin@example.com",
+    "password": "adminpass",
+    "role": "ADMIN",
+    "status": "APPROVED",
+    "department": "Administration"
+  },
+  {
+    "id": 4,
+    "name": "Dr .Gunawardhana",
+    "email": "Gunawardhana@example.com",
+    "password": "1234",
+    "role": "SUPERVISOR",
+    "status": "APPROVED",
+    "department": "Computer Science"
+  }
+]
