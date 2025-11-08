@@ -7,8 +7,12 @@ import WordCloudChart from "../components/admin/WordCloudChart";
 import RecentProjectsTable from "../components/admin/RecentProjectsTable";
 import IdeaValidationTable from "../components/admin/IdeaValidationTable";
 import GapAnalysisSection from "../components/admin/GapAnalysisSection";
+import { sampleProjects } from "../data/data";
+import { useNavigate } from "react-router-dom";
+import AIAnalysisPanel from "../components/admin/AIAnalysisPanel";
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   // Mock data
   const summary = {
     totalProjects: 245,
@@ -104,10 +108,8 @@ const AdminDashboard = () => {
       <SummaryCards summary={summary} />
 
       <div className="grid grid-cols-2 gap-6">
-          {isValidChartData(deptData) && (
-            <ProjectsByDeptChart data={deptData} />
-          )}
-          {isValidChartData(techData) && <TechPieChart data={techData} />}
+        {isValidChartData(deptData) && <ProjectsByDeptChart data={deptData} />}
+        {isValidChartData(techData) && <TechPieChart data={techData} />}
       </div>
 
       <div className="grid grid-cols-2 gap-6">
@@ -119,8 +121,26 @@ const AdminDashboard = () => {
 
       <GapAnalysisSection />
 
-      <RecentProjectsTable />
+      <div>
+        <h2 className="text-xl font-bold mb-2">Recent Projects</h2>
+
+        {/* Show only first 5 rows as preview */}
+        <RecentProjectsTable projects={sampleProjects.slice(0, 5)} />
+
+        <div className="text-right mt-2">
+          <button
+            onClick={() => navigate("/admin/projects")}
+            className="text-blue-600 hover:underline"
+          >
+            View All Projects →
+          </button>
+        </div>
+      </div>
       <IdeaValidationTable />
+      <div className=" ">
+        <AIAnalysisPanel />
+        {/* You can add other summary cards or charts here */}
+      </div>
     </div>
   );
 };
