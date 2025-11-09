@@ -39,19 +39,20 @@ const Navigation = () => {
     STUDENT: [
       { path: "/projects", label: "Browse", protected: true },
       { path: "/ideavalidation", label: "Validation", protected: true },
-      { path: "/upload", label: "Upload" },
-      { path: "/student/dashboard", label: "Dashboard" },
+      { path: "/student/upload", label: "Upload" },
+      { path: "/student/dashboard", label: "analyse" },
     ],
     SUPERVISOR: [
       { path: "/projects", label: "Browse", protected: true },
       { path: "/ideavalidation", label: "Validation", protected: true },
-      { path: "/lecturer/dashboard", label: "Review Projects" },
+      { path: "/supervisor/reviews", label: "Review Projects" },
       { path: "/supervisor/approvals", label: "Approvals" },
+      { path: "/supervisor/dashboard", label: "Analyse" },
     ],
     ADMIN: [
       { path: "/admin/dashboard", label: "Analyse" },
       { path: "/admin/users", label: "User Management" },
-      { path: "/admin/approvals", label: "Signup Approvals" }
+      { path: "/admin/approvals", label: "Signup Approvals" },
     ],
   };
 
