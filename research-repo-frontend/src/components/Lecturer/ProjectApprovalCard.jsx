@@ -20,12 +20,6 @@ const ProjectApprovalCard = ({ project, supervisor, onApprove, onReject }) => {
     <div className="border border-gray-300 rounded-lg p-6 bg-white shadow-sm hover:shadow-md transition-shadow">
       <div className="flex justify-between items-start mb-3">
         <h2 className="text-xl font-semibold text-blue-700">{project.title}</h2>
-        <button
-          onClick={() => navigate(`/project/${project.id}`)}
-          className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm"
-        >
-          View Details
-        </button>
       </div>
 
       <p className="text-sm text-gray-700 mb-1">
