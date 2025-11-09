@@ -14,6 +14,7 @@ import PrivateRoute from "./PrivateRoute"; // ✅ import
 import RecentProjectsPage from "../Pages/RecentProjectsPage";
 import UserManagementPage from "../Pages/UserManagementPage";
 import AdminApprovalPage from "../Pages/AdminApprovalPage";
+import SupervisorDashboard from "../Pages/SupervisorDashboard";
 import { useAuth } from "../context/AuthContext";
 
 const Routers = () => {
@@ -35,7 +36,7 @@ const Routers = () => {
                     }
                 />
                 <Route
-                    path="/upload"
+                    path="/student/upload"
                     element={
                         <PrivateRoute allowedRoles={["STUDENT"]}>
                             <Upload />
@@ -68,14 +69,6 @@ const Routers = () => {
                     }
                 />
                 <Route
-                    path="/admin/dashboard"
-                    element={
-                        <PrivateRoute>
-                            <AdminDashboard />
-                        </PrivateRoute>
-                    }
-                />
-                <Route
                     path="/student/dashboard"
                     element={
                         <PrivateRoute allowedRoles={["STUDENT"]}>
@@ -84,7 +77,7 @@ const Routers = () => {
                     }
                 />
                 <Route
-                    path="/lecturer/dashboard"
+                    path="/supervisor/reviews"
                     element={
                         <PrivateRoute allowedRoles={["SUPERVISOR"]}>
                             <LecturerDashboard />
@@ -110,9 +103,9 @@ const Routers = () => {
                 />
 
                 <Route
-                    path="/admin/projects"
+                    path="/project/table"
                     element={
-                        <PrivateRoute allowedRoles={["ADMIN"]}>
+                        <PrivateRoute allowedRoles={["ADMIN", "SUPERVISOR"]}>
                             <RecentProjectsPage />
                         </PrivateRoute>
                     }
@@ -132,6 +125,15 @@ const Routers = () => {
                     element={
                         <PrivateRoute allowedRoles={["ADMIN"]}>
                             <AdminApprovalPage adminDepartment={user?.department} />
+                        </PrivateRoute>
+                    }
+                />
+
+                <Route
+                    path="/supervisor/dashboard"
+                    element={
+                        <PrivateRoute allowedRoles={["SUPERVISOR"]}>
+                            <SupervisorDashboard />
                         </PrivateRoute>
                     }
                 />
