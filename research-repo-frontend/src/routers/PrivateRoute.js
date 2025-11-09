@@ -5,21 +5,24 @@ import { useAuth } from "../context/AuthContext";
 const PrivateRoute = ({ allowedRoles, children }) => {
   const { user } = useAuth();
 
+  // Not logged in
   if (!user) {
-    // Not logged in → redirect to home
     return <Navigate to="/" replace />;
   }
 
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
-    // Logged in but not allowed
+  // If specific roles are required (like ADMIN or SUPERVISOR)
+  if (allowedRoles && !allowedRoles.includes(user.role?.toUpperCase())) {
     return (
-      <div className="flex flex-col items-center justify-center h-[80vh]">
-        <h2 className="text-2xl font-bold text-red-600">Access Denied</h2>
-        <p className="text-gray-500">You are not authorized to view this page.</p>
+      <div className="flex flex-col items-center justify-center h-screen text-center">
+        <h1 className="text-3xl font-bold text-red-600 mb-2">Access Denied</h1>
+        <p className="text-gray-600">
+          You are not authorized to view this page.
+        </p>
       </div>
     );
   }
 
+  // ✅ User authorized
   return children;
 };
 
