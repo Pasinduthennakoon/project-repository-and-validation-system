@@ -6,15 +6,18 @@ import IdeaValidationTable from "../components/admin/IdeaValidationTable";
 import { sampleProjects } from "../data/data";
 import { useNavigate } from "react-router-dom";
 import AIAnalysisPanel from "../components/admin/AIAnalysisPanel";
+import usersData from "../data/users.json";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   // Mock data
+  const totalStudents = usersData.filter(u => u.role === "STUDENT").length;
+
   const summary = {
     totalProjects: 245,
     ideasAnalyzed: 130,
-    avgRating: 4.3,
     activeStudents: 72,
+    registeredStudents: totalStudents, // 🔹 New field
   };
 
   const deptData = {
