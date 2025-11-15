@@ -5,6 +5,7 @@ import Projects from "../Pages/Projects";
 import Upload from "../Pages/Upload";
 import ProjectDetails from "../Pages/ProjectDetails";
 import IdeaComparisonPage from "../Pages/IdeaComparisonPage";
+import SupervisorValidationPage from "../Pages/SupervisorValidationPage";
 import DocumentationPage from "../Pages/DocumentationPage";
 import AdminDashboard from "../Pages/AdminDashboard";
 import StudentDashboard from '../Pages/StudentDashboard'
@@ -16,6 +17,7 @@ import UserManagementPage from "../Pages/UserManagementPage";
 import AdminApprovalPage from "../Pages/AdminApprovalPage";
 import SupervisorDashboard from "../Pages/SupervisorDashboard";
 import { useAuth } from "../context/AuthContext";
+import Account from "../Pages/Account";
 
 const Routers = () => {
     const { user } = useAuth();
@@ -53,13 +55,23 @@ const Routers = () => {
                     }
                 />
                 <Route
-                    path="/ideavalidation"
+                    path="/student/ideavalidation"
                     element={
-                        <PrivateRoute>
+                        <PrivateRoute allowedRoles={["STUDENT"]}>
                             <IdeaComparisonPage />
                         </PrivateRoute>
                     }
                 />
+
+                <Route
+                    path="/supervisor/ideavalidation"
+                    element={
+                        <PrivateRoute allowedRoles={["SUPERVISOR"]}>
+                            <SupervisorValidationPage />
+                        </PrivateRoute>
+                    }
+                />
+
                 <Route
                     path="/projectdocumentation"
                     element={
@@ -138,6 +150,14 @@ const Routers = () => {
                     }
                 />
 
+                <Route 
+                    path="/account" 
+                    element={
+                        <PrivateRoute> 
+                            <Account/>
+                        </PrivateRoute>
+                    } 
+                />
 
             </Routes>
         </div>
