@@ -1,7 +1,31 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function IdeaComparisonPage() {
   const [result, setResult] = useState(null);
+  const [departments, setDepartments] = useState([]);
+
+  // ✅ Fetch departments from public/users.json
+  useEffect(() => {
+    fetch("/users.json")
+      .then((res) => res.json())
+      .then((data) => {
+        // Filter only students and exclude "Administration"
+        const studentDepartments = [
+          ...new Set(
+            data
+              .filter(
+                (u) =>
+                  u.role === "STUDENT" &&
+                  u.department &&
+                  u.department !== "Administration"
+              )
+              .map((u) => u.department)
+          ),
+        ];
+        setDepartments(studentDepartments);
+      })
+      .catch((err) => console.error("Error loading users:", err));
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -15,7 +39,7 @@ function IdeaComparisonPage() {
       abstract: e.target.abstract.value,
     };
 
-    // Mock similarity check (replace later with backend API call)
+    // 🔹 Mock similarity for now
     const mockSimilarity = Math.floor(Math.random() * 100);
 
     if (mockSimilarity > 40) {
@@ -41,18 +65,50 @@ function IdeaComparisonPage() {
       <h2 className="text-2xl font-bold mb-4">Submit a New Project Idea</h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <input name="name" placeholder="Your Name" className="border p-2 w-full" required />
-        <input name="email" placeholder="Email" className="border p-2 w-full" />
-        <input name="department" placeholder="Department" className="border p-2 w-full" />
-        <input name="batch" placeholder="Batch (e.g., 2025)" className="border p-2 w-full" required />
-        <input name="title" placeholder="Project Title" className="border p-2 w-full" required />
+        <input
+          name="name"
+          placeholder="Your Name"
+          className="border p-2 w-full"
+          required
+        />
+        <input
+          name="email"
+          placeholder="Email"
+          className="border p-2 w-full"
+        />
+
+        {/* ✅ Department dropdown populated dynamically */}
+        <select name="department" className="border p-2 w-full" required>
+          <option value="">Select Department</option>
+          {departments.map((dept, index) => (
+            <option key={index} value={dept}>
+              {dept}
+            </option>
+          ))}
+        </select>
+
+        <input
+          name="batch"
+          placeholder="Batch (e.g., 2025)"
+          className="border p-2 w-full"
+          required
+        />
+        <input
+          name="title"
+          placeholder="Project Title"
+          className="border p-2 w-full"
+          required
+        />
         <textarea
           name="abstract"
           placeholder="Enter Project Abstract"
           className="border p-2 w-full h-28"
           required
         />
-        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
+        <button
+          type="submit"
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+        >
           Compare Idea
         </button>
       </form>
