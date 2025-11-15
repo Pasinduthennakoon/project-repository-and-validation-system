@@ -5,8 +5,9 @@ const SummaryCards = ({ summary = {} }) => {
     { title: "Total Projects", value: summary.totalProjects ?? 0, icon: "📂" },
     { title: "Ideas Analyzed", value: summary.ideasAnalyzed ?? 0, icon: "🧠" },
     { title: "Active Students", value: summary.activeStudents ?? 0, icon: "🧑‍🎓" },
-    { title: "Average Rating", value: summary.avgRating ?? 0, icon: "⭐" },
+    { title: "Registered Students", value: summary.registeredStudents ?? 0, icon: "🧑‍🎓" },
   ];
+
 
   return (
     <div className="grid grid-cols-4 gap-6">
