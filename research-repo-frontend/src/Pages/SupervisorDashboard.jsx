@@ -9,6 +9,7 @@ import IdeaValidationTable from "../components/admin/IdeaValidationTable";
 import AIAnalysisPanel from "../components/admin/AIAnalysisPanel";
 import { sampleProjects } from "../data/data";
 import { useAuth } from "../context/AuthContext"; // optional
+import usersData from "../data/users.json";
 
 const SupervisorDashboard = () => {
   const navigate = useNavigate();
@@ -24,7 +25,6 @@ const SupervisorDashboard = () => {
       summary: {
         totalProjects: 42,
         ideasAnalyzed: 25,
-        avgRating: 4.4,
         activeStudents: 20,
       },
       techData: {
@@ -147,7 +147,15 @@ const SupervisorDashboard = () => {
   const department = user?.department || "CS";
   const data = deptDataMap[department] || deptDataMap["CS"];
 
-  const [summary, setSummary] = useState(data.summary);
+  // 🔹 Count registered students in this department
+  const departmentStudents = usersData.filter(
+    u => u.role === "STUDENT" && u.department === department
+  );
+
+  const [summary, setSummary] = useState({
+    ...data.summary,
+    registeredStudents: departmentStudents.length,
+  });
   const [techData, setTechData] = useState(data.techData);
   const [trendData, setTrendData] = useState(data.trendData);
 
