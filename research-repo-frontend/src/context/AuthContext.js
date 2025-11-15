@@ -1,80 +1,151 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
+import usersData from "../data/users.json";
 
 const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // logged-in user
-  const [users, setUsers] = useState([]); // combined users list (public + local signups)
   const LOCAL_USERS_KEY = "local_users";
+  const SESSION_KEY = "auth_user";
 
-  // load saved session
+  const [user, setUser] = useState(null);
+  const [users, setUsers] = useState([]);
+
+  // Load saved session
   useEffect(() => {
-    const saved = localStorage.getItem("auth_user");
+    const saved = localStorage.getItem(SESSION_KEY);
     if (saved) setUser(JSON.parse(saved));
   }, []);
 
-  // load users.json (public) + local users from localStorage
+  // Load mock users + localStorage users
   useEffect(() => {
-    const load = async () => {
-      try {
-        const res = await fetch("/users.json");
-        const publicUsers = await res.json();
-        const local = JSON.parse(localStorage.getItem(LOCAL_USERS_KEY) || "[]");
-        // combine (local users override by email if duplicates)
-        const combined = [...publicUsers, ...local];
-        setUsers(combined);
-      } catch (err) {
-        console.error("Failed to load users.json", err);
-        const local = JSON.parse(localStorage.getItem(LOCAL_USERS_KEY) || "[]");
-        setUsers(local);
-      }
-    };
-    load();
+    const localUsers = JSON.parse(localStorage.getItem(LOCAL_USERS_KEY) || "[]");
+    const combined = [...usersData, ...localUsers];
+    setUsers(combined);
   }, []);
 
-  // login function
+  // -----------------------------
+  // LOGIN
+  // -----------------------------
   const loginUser = ({ email, password }) => {
-    const found = users.find((u) => u.email === email && u.password === password);
+    const found = users.find(
+      (u) => u.email === email && u.password === password
+    );
+
     if (!found) return { ok: false, message: "Invalid credentials" };
-    if (found.status === "PENDING") return { ok: false, message: "Account pending approval" };
-    if (found.status === "REJECTED") return { ok: false, message: "Account rejected" };
+    if (found.status === "PENDING")
+      return { ok: false, message: "Account pending approval" };
+    if (found.status === "REJECTED")
+      return { ok: false, message: "Account rejected" };
 
     setUser(found);
-    localStorage.setItem("auth_user", JSON.stringify(found));
+    localStorage.setItem(SESSION_KEY, JSON.stringify(found));
+
     return { ok: true, user: found };
   };
 
-  // signup: store into localStorage local users (APPROVED for STUDENT, PENDING for others)
-  const signupUser = (payload) => {
-    const { email, name, password, role = "STUDENT" } = payload;
-    if (users.find((u) => u.email === email)) {
-      return { ok: false, message: "Email already registered" };
-    }
-    const status = role === "STUDENT" ? "APPROVED" : "PENDING";
-    const local = JSON.parse(localStorage.getItem(LOCAL_USERS_KEY) || "[]");
-    const newUser = {
+  // -----------------------------
+  // SIGNUP
+  // -----------------------------
+  const signupUser = (newUser) => {
+    const exists = users.find((u) => u.email === newUser.email);
+    if (exists) return { ok: false, message: "Email already registered" };
+
+    const status = newUser.role === "STUDENT" ? "APPROVED" : "PENDING";
+    const finalUser = {
+      ...newUser,
       id: Date.now(),
-      name,
-      email,
-      password,
-      role,
       status,
+      profilePhoto: null,
     };
-    const updatedLocal = [...local, newUser];
+
+    const localUsers = JSON.parse(localStorage.getItem(LOCAL_USERS_KEY) || "[]");
+    const updatedLocal = [...localUsers, finalUser];
+
     localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(updatedLocal));
-    // update in-memory users so login can see it immediately
-    setUsers((prev) => [...prev, newUser]);
-    return { ok: true, user: newUser, status };
+    setUsers((prev) => [...prev, finalUser]);
+
+    return { ok: true, user: finalUser };
   };
 
+  // -----------------------------
+  // UPDATE PROFILE (name, email, photo)
+  // -----------------------------
+  const updateProfile = (updatedFields) => {
+    const updatedUser = { ...user, ...updatedFields };
+
+    setUser(updatedUser);
+    localStorage.setItem(SESSION_KEY, JSON.stringify(updatedUser));
+
+    // Update in local storage if exists
+    const localUsers = JSON.parse(localStorage.getItem(LOCAL_USERS_KEY) || "[]");
+    const updatedLocal = localUsers.map((u) =>
+      u.id === updatedUser.id ? updatedUser : u
+    );
+    localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(updatedLocal));
+  };
+
+  // -----------------------------
+  // CHANGE PASSWORD
+  // -----------------------------
+  const changePassword = (oldPass, newPass) => {
+    if (user.password !== oldPass) {
+      return { ok: false, message: "Old password is incorrect" };
+    }
+
+    const updated = { ...user, password: newPass };
+
+    setUser(updated);
+    localStorage.setItem(SESSION_KEY, JSON.stringify(updated));
+
+    const localUsers = JSON.parse(localStorage.getItem(LOCAL_USERS_KEY) || "[]");
+    const updatedLocal = localUsers.map((u) =>
+      u.id === updated.id ? updated : u
+    );
+
+    localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(updatedLocal));
+
+    return { ok: true };
+  };
+
+  // -----------------------------
+  // DELETE ACCOUNT
+  // -----------------------------
+  const deleteAccount = () => {
+    const localUsers = JSON.parse(localStorage.getItem(LOCAL_USERS_KEY) || "[]");
+
+    // Remove from local users list
+    const updatedLocal = localUsers.filter((u) => u.id !== user.id);
+    localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(updatedLocal));
+
+    // Remove session
+    setUser(null);
+    localStorage.removeItem(SESSION_KEY);
+
+    return { ok: true };
+  };
+
+  // -----------------------------
+  // LOGOUT
+  // -----------------------------
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("auth_user");
+    localStorage.removeItem(SESSION_KEY);
   };
 
   return (
-    <AuthContext.Provider value={{ user, users, loginUser, signupUser, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        users,
+        loginUser,
+        signupUser,
+        logout,
+        updateProfile,
+        changePassword,
+        deleteAccount,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
