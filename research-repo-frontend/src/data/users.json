@@ -1,0 +1,81 @@
+[
+  {
+    "id": 1,
+    "name": "Pasindu",
+    "email": "pasindu@example.com",
+    "password": "password123",
+    "role": "STUDENT",
+    "status": "APPROVED",
+    "department": "Computer Science",
+    "batch": "2025",
+    "reg": "E/19/001",
+    "photo": "https://png.pngtree.com/png-clipart/20240211/original/pngtree-portrait-of-a-person-png-image_14289687.png"
+  },
+  {
+    "id": 2,
+    "name": "Lecturer",
+    "email": "lecturer@example.com",
+    "password": "lecpass",
+    "role": "SUPERVISOR",
+    "status": "APPROVED",
+    "department": "Computer Science"
+  },
+  {
+    "id": 3,
+    "name": "Admin",
+    "email": "admin@example.com",
+    "password": "adminpass",
+    "role": "ADMIN",
+    "status": "APPROVED",
+    "department": "Administration"
+  },
+  {
+    "id": 4,
+    "name": "Dr .Gunawardhana",
+    "email": "Gunawardhana@example.com",
+    "password": "1234",
+    "role": "SUPERVISOR",
+    "status": "APPROVED",
+    "department": "Computer Science"
+  },
+  {
+    "id": 5,
+    "name": "Dr .saman senanayake",
+    "email": "saman senanayake@example.com",
+    "password": "3456",
+    "role": "SUPERVISOR",
+    "status": "APPROVED",
+    "department": "Computer Science"
+  },
+  {
+    "id": 6,
+    "name": "Dr .ekanayake",
+    "email": "ekanayake@example.com",
+    "password": "3456",
+    "role": "SUPERVISOR",
+    "status": "APPROVED",
+    "department": "Information Technology"
+  },
+  {
+    "id": 7,
+    "name": "kavindu",
+    "email": "kavindu@example.com",
+    "password": "kavi123",
+    "role": "STUDENT",
+    "status": "APPROVED",
+    "department": "Computer Science",
+    "batch": "2024",
+    "reg": "E/12/001"
+  },
+  {
+    "id": 8,
+    "name": "saman",
+    "email": "saman@example.com",
+    "password": "saman123",
+    "role": "STUDENT",
+    "status": "APPROVED",
+    "department": "Information Technology",
+    "batch": "2024",
+    "reg": "E/13/001"
+  }
+]
