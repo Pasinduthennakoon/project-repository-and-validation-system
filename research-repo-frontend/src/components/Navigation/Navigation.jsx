@@ -39,23 +39,25 @@ const Navigation = () => {
 
   return (
     <>
-      <nav className="flex items-center py-6 px-16 justify-between bg-white shadow-sm">
+      <nav className="flex items-center py-6 px-16 justify-between bg-white shadow-sm relative z-[999999]">
         <NavLink to="/" className="text-3xl font-bold text-blue-600">
           Research Repo.
         </NavLink>
 
         <ul className="flex gap-10 font-semibold">
-          <li>
-            <NavLink
-              to="/"
-              end
-              className={({ isActive }) =>
-                isActive ? activeClass : normalClass
-              }
-            >
-              Home
-            </NavLink>
-          </li>
+          {user && (
+            <li>
+              <NavLink
+                to="/"
+                end
+                className={({ isActive }) =>
+                  isActive ? activeClass : normalClass
+                }
+              >
+                Home
+              </NavLink>
+            </li>
+          )}
 
           {links.map((l) => (
             <li key={l.path}>
@@ -71,7 +73,7 @@ const Navigation = () => {
           ))}
         </ul>
 
-        {/* AUTH AREA */}
+        {/* AUTH / PROFILE */}
         {!user ? (
           <button
             onClick={() => setShowAuth(true)}
@@ -89,7 +91,7 @@ const Navigation = () => {
             />
 
             {dropdown && (
-              <div className="absolute right-0 mt-2 w-40 bg-white rounded shadow">
+              <div className="absolute right-0 mt-2 w-40 bg-white rounded shadow z-[999999]">
                 <button
                   className="block w-full text-left px-4 py-2 hover:bg-gray-200"
                   onClick={() => {
