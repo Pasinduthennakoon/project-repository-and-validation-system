@@ -7,6 +7,8 @@ import StudentCard from "../components/cards/StudentCard";
 import SupervisorCard from "../components/cards/SupervisorCard";
 import { useParams } from "react-router-dom";
 import { sampleProjects } from "../data/data";
+import { sampleComments } from "../data/sampleComments";
+import CommentCard from "../components/cards/CommentCard";
 
 const ProjectPage = () => {
   const { id } = useParams();
@@ -21,9 +23,8 @@ const ProjectPage = () => {
 
       {/* Repo Info */}
       <p className="text-gray-600 mt-2 mb-2">
-        Created: {project.created} &nbsp; | &nbsp;&nbsp;&nbsp; Forks:{" "}
-        {project.forks} &nbsp; | &nbsp;&nbsp;&nbsp; Watchers: {project.watchers}{" "}
-        &nbsp; | &nbsp;&nbsp;&nbsp; Stars: {project.stars}
+        Created: {project.created} &nbsp; | &nbsp;&nbsp;&nbsp; Watchers:{" "}
+        {project.watchers} &nbsp; | &nbsp;&nbsp;&nbsp; Stars: {project.stars}
       </p>
       <hr className="border-black mb-6" />
 
@@ -131,6 +132,16 @@ const ProjectPage = () => {
           >
             ← Back to Project Repository
           </Link>
+        </div>
+      </div>
+
+      {/* Comments Section */}
+      <div className="mt-10">
+        <h2 className="text-lg font-semibold text-gray-800 mb-4">Comments</h2>
+        <div className="grid gap-4">
+          {sampleComments.map((comment, idx) => (
+            <CommentCard key={idx} comment={comment} />
+          ))}
         </div>
       </div>
     </div>
