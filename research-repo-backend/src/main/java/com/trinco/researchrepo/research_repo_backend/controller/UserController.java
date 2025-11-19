@@ -1,9 +1,7 @@
 package com.trinco.researchrepo.research_repo_backend.controller;
 
-import com.trinco.researchrepo.research_repo_backend.dto.UserDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.request.PendingUserSaveRequestDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.request.StudentSaveRequestDTO;
-import com.trinco.researchrepo.research_repo_backend.dto.request.UserSaveRequestDTO;
 import com.trinco.researchrepo.research_repo_backend.service.PendingUserService;
 import com.trinco.researchrepo.research_repo_backend.service.StudentService;
 import com.trinco.researchrepo.research_repo_backend.service.UserSevice;
