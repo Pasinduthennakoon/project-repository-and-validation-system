@@ -58,4 +58,7 @@ public class Projects {
     @Type(JsonType.class)
     @Column(name = "tags", columnDefinition = "json")
     private List<String> tags;
+
+    @OneToOne(mappedBy = "project")
+    private Reviews reviews;
 }
