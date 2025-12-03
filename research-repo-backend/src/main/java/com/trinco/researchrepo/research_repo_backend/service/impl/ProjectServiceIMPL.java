@@ -4,8 +4,10 @@ import com.trinco.researchrepo.research_repo_backend.dto.request.PendingProjectS
 import com.trinco.researchrepo.research_repo_backend.dto.request.ProjectSaveRequestDTO;
 import com.trinco.researchrepo.research_repo_backend.entity.Pending_Projects;
 import com.trinco.researchrepo.research_repo_backend.entity.Projects;
+import com.trinco.researchrepo.research_repo_backend.entity.Reviews;
 import com.trinco.researchrepo.research_repo_backend.repo.PendingProjectRepo;
 import com.trinco.researchrepo.research_repo_backend.repo.ProjectRepo;
+import com.trinco.researchrepo.research_repo_backend.repo.ProjectReviewRepo;
 import com.trinco.researchrepo.research_repo_backend.service.GoogleDriveService;
 import com.trinco.researchrepo.research_repo_backend.service.ProjectService;
 import com.trinco.researchrepo.research_repo_backend.util.mappers.ProjectMapper;
@@ -32,6 +34,9 @@ public class ProjectServiceIMPL implements ProjectService {
     @Autowired
     private GoogleDriveService googleDriveService;
 
+    @Autowired
+    private ProjectReviewRepo projectReviewRepo;
+
     @Override
     public String approveProject(int pendingId) {
 
@@ -51,6 +56,10 @@ public class ProjectServiceIMPL implements ProjectService {
 
             projects.setPdfLink(googleDriveUrl);
             projectRepo.save(projects);
+
+            Reviews reviews = new Reviews();
+            reviews.setProject(projects);
+            projectReviewRepo.save(reviews);
 
 
             // 3. Delete temp file
