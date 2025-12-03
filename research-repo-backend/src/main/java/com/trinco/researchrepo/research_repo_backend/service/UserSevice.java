@@ -7,4 +7,6 @@ import org.springframework.stereotype.Service;
 
 public interface UserSevice {
     Users addUser(UserSaveRequestDTO userSaveRequestDTO);
+
+    String approveUser(int pendingId);
 }
