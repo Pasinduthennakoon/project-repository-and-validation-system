@@ -40,7 +40,7 @@ public class UserController {
     }
 
     @PostMapping(
-            path = {"/save/user"}
+            path = {"/save/pending_user"}
     )
     public ResponseEntity<StandardResponse> addUser(@RequestBody PendingUserSaveRequestDTO pendingUserSaveRequestDTO) {
 
@@ -48,6 +48,21 @@ public class UserController {
 
         return new ResponseEntity<StandardResponse>(
                 new StandardResponse(201, "Pending User Signup Request", userId),
+                HttpStatus.CREATED
+        );
+    }
+
+    @PostMapping(
+            path = {"/approve_user"},
+            params = {"pendingId"}
+    )
+    public ResponseEntity<StandardResponse> approveUser(
+            @RequestParam("pendingId") int pendingId) throws Exception {
+
+        String userId = userSevice.approveUser(pendingId);
+
+        return new ResponseEntity<StandardResponse>(
+                new StandardResponse(201, "User Added Successfully", userId),
                 HttpStatus.CREATED
         );
     }
