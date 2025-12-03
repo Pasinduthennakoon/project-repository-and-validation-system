@@ -29,4 +29,17 @@ public class ProjectReviewController {
                 HttpStatus.CREATED
         );
     }
+
+    @PutMapping(
+            path = {"/watches"},
+            params = {"project_id"}
+    )
+    public ResponseEntity<StandardResponse> updateWatches(@RequestParam(value = "project_id") int project_id){
+        String projectId = projectReviewService.updateWatches(project_id);
+
+        return new ResponseEntity<StandardResponse>(
+                new StandardResponse(201, "watches added",projectId),
+                HttpStatus.CREATED
+        );
+    }
 }
