@@ -32,19 +32,19 @@ public class StudentServiceIMPL implements StudentService {
     @Override
     public String addStudent(StudentSaveRequestDTO studentSaveRequestDTO) {
 
-        UserSaveRequestDTO userSaveRequestDTO = usersMapper.studentDtoToUserDto(studentSaveRequestDTO);
-        Users user = userSevice.addUser(userSaveRequestDTO);
-
-        // Manually create Students entity instead of using mapper
-        Students students = new Students();
-        students.setRegNo(studentSaveRequestDTO.getRegNo());
-        students.setBatch(studentSaveRequestDTO.getBatch());
-        students.setUser(user);
-
-        if(!userRepo.existsByEmail(userSaveRequestDTO.getEmail())) {
-            return String.valueOf(studentRepo.save(students).getUserId());
-        }else{
+        if (userRepo.existsByEmail(studentSaveRequestDTO.getEmail())) {
             throw new EntryDuplicationException("Email already exists!");
+        }else{
+            UserSaveRequestDTO userSaveRequestDTO = usersMapper.studentDtoToUserDto(studentSaveRequestDTO);
+            Users user = userSevice.addUser(userSaveRequestDTO);
+
+            // Manually create Students entity instead of using mapper
+            Students students = new Students();
+            students.setRegNo(studentSaveRequestDTO.getRegNo());
+            students.setBatch(studentSaveRequestDTO.getBatch());
+            students.setUser(user);
+
+            return String.valueOf(studentRepo.save(students).getUserId());
         }
 
     }
