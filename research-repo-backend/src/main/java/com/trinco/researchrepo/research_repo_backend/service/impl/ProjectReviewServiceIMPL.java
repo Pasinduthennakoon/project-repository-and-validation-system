@@ -23,4 +23,14 @@ public class ProjectReviewServiceIMPL implements ProjectReviewService {
         }
         return "Stars updated successfully";
     }
+
+    @Override
+    public String updateWatches(int projectId) {
+        if(projectReviewRepo.existsById(projectId)){
+            Reviews reviews = projectReviewRepo.getReferenceById(projectId);
+            reviews.setWatches(reviews.getWatches() + 1);
+            projectReviewRepo.save(reviews);
+        }
+        return "add watches successfully";
+    }
 }
