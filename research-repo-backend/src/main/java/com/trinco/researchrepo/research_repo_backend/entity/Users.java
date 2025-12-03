@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Table(name = "users")
 @NoArgsConstructor
@@ -32,7 +34,7 @@ public class Users {
     @Column(name = "password", length = 100, nullable = false)
     private String password;
 
-    @Column(name = "photo_link", nullable = false)
+    @Column(name = "photo_link")
     private String photoLink;
 
     @Column(name = "active_state", columnDefinition = "TINYINT default 1")
@@ -40,5 +42,11 @@ public class Users {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Students student;
+
+    @OneToOne(mappedBy = "uploader")
+    private Projects project; // The project uploaded by this user
+
+    @OneToMany(mappedBy = "supervisor")
+    private List<Projects> supervisedProjects; // Projects supervised by this user
 
 }
