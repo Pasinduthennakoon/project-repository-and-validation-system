@@ -1,5 +1,6 @@
 package com.trinco.researchrepo.research_repo_backend.controller;
 
+import com.trinco.researchrepo.research_repo_backend.dto.request.CommentSaveRequestDTO;
 import com.trinco.researchrepo.research_repo_backend.service.ProjectReviewService;
 import com.trinco.researchrepo.research_repo_backend.util.StandardResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,19 @@ public class ProjectReviewController {
 
         return new ResponseEntity<StandardResponse>(
                 new StandardResponse(201, "watches added",projectId),
+                HttpStatus.CREATED
+        );
+    }
+
+    @PostMapping(
+            path = {"/add_comment"}
+    )
+    public ResponseEntity<StandardResponse> addComment(@RequestBody CommentSaveRequestDTO commentSaveRequestDTO){
+
+        String projectId = projectReviewService.addComment(commentSaveRequestDTO);
+
+        return new ResponseEntity<StandardResponse>(
+                new StandardResponse(201, "Add Comment Successfully",projectId),
                 HttpStatus.CREATED
         );
     }
