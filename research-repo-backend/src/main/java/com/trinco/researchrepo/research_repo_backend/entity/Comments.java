@@ -23,6 +23,9 @@ public class Comments {
     @Column(name = "created_at")
     private String createdAt;
 
+    @Column(name = "rating_stars")
+    private int ratingStars;
+
     @ManyToOne
     @JoinColumn(name = "supervisor_id") // Column in Projects table
     private Users supervisor;
