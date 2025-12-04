@@ -18,18 +18,6 @@ public class ProjectReviewServiceIMPL implements ProjectReviewService {
     private ProjectReviewRepo projectReviewRepo;
 
     @Override
-    public String updateStars(int projectId, int stars) {
-
-        if(projectReviewRepo.existsById(projectId)){
-            Reviews reviews = projectReviewRepo.getReferenceById(projectId);
-            reviews.setStars(reviews.getStars() + stars);
-            reviews.setRated(reviews.getRated() + 1);
-            projectReviewRepo.save(reviews);
-        }
-        return "Stars updated successfully";
-    }
-
-    @Override
     public String updateWatches(int projectId) {
         if(projectReviewRepo.existsById(projectId)){
             Reviews reviews = projectReviewRepo.getReferenceById(projectId);
