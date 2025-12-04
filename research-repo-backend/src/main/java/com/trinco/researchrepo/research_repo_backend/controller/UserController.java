@@ -20,24 +20,7 @@ public class UserController {
     private UserSevice userSevice;
 
     @Autowired
-    private StudentService studentService;
-
-    @Autowired
     private PendingUserService pendingUserService;
-
-    @PostMapping(
-            path = {"/save/student"}
-    )
-    public ResponseEntity<StandardResponse> addStudent(@RequestBody StudentSaveRequestDTO studentSaveRequestDTO) {
-
-            String studentId = studentService.addStudent(studentSaveRequestDTO);
-
-
-        return new ResponseEntity<StandardResponse>(
-                new StandardResponse(201, "User successfully saved with ID: " , studentId),
-                HttpStatus.CREATED
-        );
-    }
 
     @PostMapping(
             path = {"/save/pending_user"}
