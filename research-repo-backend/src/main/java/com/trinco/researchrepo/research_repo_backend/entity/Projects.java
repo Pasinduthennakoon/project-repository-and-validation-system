@@ -61,4 +61,7 @@ public class Projects {
 
     @OneToOne(mappedBy = "project")
     private Reviews reviews;
+
+    @OneToMany(mappedBy = "project")
+    private List<Comments> commentedProjects;
 }
