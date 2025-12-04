@@ -1,6 +1,8 @@
 package com.trinco.researchrepo.research_repo_backend.controller;
 
 import com.trinco.researchrepo.research_repo_backend.dto.request.ProjectSaveRequestDTO;
+import com.trinco.researchrepo.research_repo_backend.dto.response.ProjectPageDataResponseDTO;
+import com.trinco.researchrepo.research_repo_backend.exceptions.NotFoundException;
 import com.trinco.researchrepo.research_repo_backend.service.ProjectService;
 import com.trinco.researchrepo.research_repo_backend.util.StandardResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,5 +31,31 @@ public class ProjectController {
                 new StandardResponse(201, "Project approved", projectId),
                 HttpStatus.CREATED
         );
+    }
+
+    @GetMapping("/{projectId}/details")
+    public ResponseEntity<StandardResponse> getProjectDetails(@PathVariable int projectId) {
+        try {
+            ProjectPageDataResponseDTO data = projectService.getProjectPageData(projectId);
+
+            // Return success wrapped in StandardResponse
+            return new ResponseEntity<>(
+                    new StandardResponse(200, "Project details retrieved successfully", data),
+                    HttpStatus.OK
+            );
+        } catch (NotFoundException e) {
+            // Handle specific exception for 404
+            return new ResponseEntity<>(
+                    new StandardResponse(404, e.getMessage(), null),
+                    HttpStatus.NOT_FOUND
+            );
+        } catch (Exception e) {
+            // Handle generic unexpected server errors
+            System.err.println("Unexpected error fetching project details: " + e.getMessage());
+            return new ResponseEntity<>(
+                    new StandardResponse(500, "Internal server error.", null),
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
     }
 }
