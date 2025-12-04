@@ -49,4 +49,6 @@ public class Users {
     @OneToMany(mappedBy = "supervisor")
     private List<Projects> supervisedProjects; // Projects supervised by this user
 
+    @OneToMany(mappedBy = "supervisor")
+    private List<Comments> commentedProjects;
 }
