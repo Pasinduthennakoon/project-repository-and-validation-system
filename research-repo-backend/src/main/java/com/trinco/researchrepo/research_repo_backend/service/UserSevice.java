@@ -9,4 +9,6 @@ public interface UserSevice {
     Users addUser(UserSaveRequestDTO userSaveRequestDTO);
 
     String approveUser(int pendingId);
+
+    String updateActiveState(int userId, boolean status);
 }
