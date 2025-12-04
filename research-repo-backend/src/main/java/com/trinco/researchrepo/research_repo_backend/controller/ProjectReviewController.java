@@ -44,16 +44,4 @@ public class ProjectReviewController {
         );
     }
 
-    @PostMapping(
-            path = {"/add_comment"}
-    )
-    public ResponseEntity<StandardResponse> addComment(@RequestBody CommentSaveRequestDTO commentSaveRequestDTO){
-
-        String projectId = projectReviewService.addComment(commentSaveRequestDTO);
-
-        return new ResponseEntity<StandardResponse>(
-                new StandardResponse(201, "Add Comment Successfully",projectId),
-                HttpStatus.CREATED
-        );
-    }
 }

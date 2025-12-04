@@ -17,12 +17,6 @@ public class ProjectReviewServiceIMPL implements ProjectReviewService {
     @Autowired
     private ProjectReviewRepo projectReviewRepo;
 
-    @Autowired
-    private CommentMapper commentMapper;
-
-    @Autowired
-    private CommentRepo commentRepo;
-
     @Override
     public String updateStars(int projectId, int stars) {
 
@@ -45,11 +39,4 @@ public class ProjectReviewServiceIMPL implements ProjectReviewService {
         return "add watches successfully";
     }
 
-    @Override
-    public String addComment(CommentSaveRequestDTO commentSaveRequestDTO) {
-        Comments comments = commentMapper.RequestDtoToEntity(commentSaveRequestDTO);
-        commentRepo.save(comments);
-
-        return String.valueOf(comments.getCommentId());
-    }
 }

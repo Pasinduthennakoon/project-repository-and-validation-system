@@ -6,6 +6,4 @@ public interface ProjectReviewService {
     String updateStars(int projectId, int stars);
 
     String updateWatches(int projectId);
-
-    String addComment(CommentSaveRequestDTO commentSaveRequestDTO);
 }
