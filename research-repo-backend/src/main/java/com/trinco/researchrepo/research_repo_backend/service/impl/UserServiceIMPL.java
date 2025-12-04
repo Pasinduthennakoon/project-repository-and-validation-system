@@ -6,11 +6,13 @@ import com.trinco.researchrepo.research_repo_backend.entity.Pending_Users;
 import com.trinco.researchrepo.research_repo_backend.entity.Students;
 import com.trinco.researchrepo.research_repo_backend.entity.Users;
 import com.trinco.researchrepo.research_repo_backend.exceptions.EntryDuplicationException;
+import com.trinco.researchrepo.research_repo_backend.exceptions.NotFoundException;
 import com.trinco.researchrepo.research_repo_backend.repo.PendingUsersRepo;
 import com.trinco.researchrepo.research_repo_backend.repo.UserRepo;
 import com.trinco.researchrepo.research_repo_backend.service.UserSevice;
 import com.trinco.researchrepo.research_repo_backend.util.mappers.UsersMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -52,10 +54,23 @@ public class UserServiceIMPL implements UserSevice {
         if (userRepo.existsByEmail(userSaveRequestDTO.getEmail())) {
             throw new EntryDuplicationException("Email already exists!");
         }else{
+            users.setActiveState(true);
             userRepo.save(users);
             pendingUsersRepo.delete(pendinga_users);
 
             return String.valueOf(users.getUserId());
+        }
+    }
+
+    @Override
+    public String updateActiveState(int userId, boolean status) {
+        if (userRepo.existsById(userId)) {
+            Users users = userRepo.getReferenceById(userId);
+            users.setActiveState(status);
+            userRepo.save(users);
+            return "successfully updated";
+        } else {
+            throw new NotFoundException("this user not found");
         }
     }
 }
