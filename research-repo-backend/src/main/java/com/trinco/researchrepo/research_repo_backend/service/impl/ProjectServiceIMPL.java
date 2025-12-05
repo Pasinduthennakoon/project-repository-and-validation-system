@@ -1,5 +1,6 @@
 package com.trinco.researchrepo.research_repo_backend.service.impl;
 
+import com.trinco.researchrepo.research_repo_backend.dto.LanguageUsageDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.request.PendingProjectSaveRequestDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.request.ProjectSaveRequestDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.response.CommentResponseDTO;
@@ -14,6 +15,7 @@ import com.trinco.researchrepo.research_repo_backend.repo.ProjectRepo;
 import com.trinco.researchrepo.research_repo_backend.repo.ProjectReviewRepo;
 import com.trinco.researchrepo.research_repo_backend.service.GoogleDriveService;
 import com.trinco.researchrepo.research_repo_backend.service.ProjectService;
+import com.trinco.researchrepo.research_repo_backend.util.mappers.ProjectDetailsPageMapper;
 import com.trinco.researchrepo.research_repo_backend.util.mappers.ProjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -42,6 +45,9 @@ public class ProjectServiceIMPL implements ProjectService {
 
     @Autowired
     private ProjectReviewRepo projectReviewRepo;
+
+    @Autowired
+    private ProjectDetailsPageMapper projectDetailsPageMapper;
 
     @Override
     public String approveProject(int pendingId) {
@@ -87,54 +93,37 @@ public class ProjectServiceIMPL implements ProjectService {
         Projects project = projectRepo.findProjectDetailsById(projectId)
                 .orElseThrow(() -> new RuntimeException("Project with ID " + projectId + " not found."));
 
-        // Map project entity -> ProjectDetailsResponseDTO
-        ProjectDetailsResponseDTO details = new ProjectDetailsResponseDTO();
-        details.setProjectId(project.getProjectId());
-        details.setTitle(project.getTitle());
-        details.setAbstract_(project.getAbstract_());
-        details.setGithubLink(project.getGithubLink());
-        details.setPdfLink(project.getPdfLink());
-        details.setCreatedAt(project.getCreatedAt());
-
-        // Uploader info
-        details.setUploaderName(project.getUploader().getUserName());
-        details.setUploaderPhoto(project.getUploader().getPhotoLink());
-        details.setUploaderBatch(project.getUploader().getStudent().getBatch());
-        details.setUploaderDepartment(project.getUploader().getDepartment());
-
-        // Supervisor info (can be null)
-        if (project.getSupervisor() != null) {
-            details.setSupervisorName(project.getSupervisor().getUserName());
-            details.setSupervisorPhoto(project.getSupervisor().getPhotoLink());
-            details.setSupervisorEmail(project.getSupervisor().getEmail());
-            details.setSupervisorDepartment(project.getSupervisor().getDepartment());
-        }
-
-        // Review info
-        if (project.getReviews() != null) {
-            details.setWatches(project.getReviews().getWatches());
-            details.setStars(project.getReviews().getStars());
-        } else {
-            details.setWatches(0);
-            details.setStars(0);
-        }
-
-        // JSON fields
-        details.setTags(project.getTags());
-        details.setLanguagesUsed(project.getLanguageUsed());
+        ProjectDetailsResponseDTO projectDetailsResponseDTO =  projectDetailsPageMapper.projectDetailsEntityToDto(project);
 
         // Map comments
-        List<Comments> commentEntities = projectRepo.findCommentsByProjectId(projectId);
-        List<CommentResponseDTO> commentDTOs = commentEntities.stream()
-                .map(c -> new CommentResponseDTO(
-                        c.getComment(),
-                        c.getCreatedAt(),
-                        c.getRatingStars(),
-                        c.getSupervisor() != null ? c.getSupervisor().getUserName() : null
-                ))
-                .collect(Collectors.toList());
+        List<Comments> comments = projectRepo.findCommentsByProjectId(projectId);
+        List<CommentResponseDTO> commentResponseDTOS = projectDetailsPageMapper.commentEntityListToResponseDTOList(comments);
 
         // 4. Combine and return the final wrapper object
-        return new ProjectPageDataResponseDTO(details, commentDTOs);
+        return new ProjectPageDataResponseDTO(projectDetailsResponseDTO, commentResponseDTOS);
+    }
+
+    @Override
+    public Projects updateLanguageUsed(int projectId, List<LanguageUsageDTO> languageUsage) {
+        Optional<Projects> projects = projectRepo.findById(projectId);
+
+        if(projects.isPresent()){
+            Projects project = projects.get();
+            project.setLanguageUsed(languageUsage);
+            return projectRepo.save(project);
+        }
+        return null;
+    }
+
+    @Override
+    public Projects updateProjectTags(int projectId, List<String> tags) {
+        Optional<Projects> projects = projectRepo.findById(projectId);
+
+        if (projects.isPresent()){
+            Projects project = projects.get();
+            project.setTags(tags);
+            return projectRepo.save(project);
+        }
+        return null;
     }
 }
