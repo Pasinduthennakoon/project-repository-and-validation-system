@@ -3,18 +3,13 @@ package com.trinco.researchrepo.research_repo_backend.service.impl;
 import com.trinco.researchrepo.research_repo_backend.dto.LanguageUsageDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.request.PendingProjectSaveRequestDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.request.ProjectSaveRequestDTO;
-import com.trinco.researchrepo.research_repo_backend.dto.response.CommentResponseDTO;
-import com.trinco.researchrepo.research_repo_backend.dto.response.ProjectDetailsResponseDTO;
-import com.trinco.researchrepo.research_repo_backend.dto.response.ProjectPageDataResponseDTO;
-import com.trinco.researchrepo.research_repo_backend.entity.Comments;
-import com.trinco.researchrepo.research_repo_backend.entity.Pending_Projects;
-import com.trinco.researchrepo.research_repo_backend.entity.Projects;
-import com.trinco.researchrepo.research_repo_backend.entity.Reviews;
-import com.trinco.researchrepo.research_repo_backend.repo.PendingProjectRepo;
-import com.trinco.researchrepo.research_repo_backend.repo.ProjectRepo;
-import com.trinco.researchrepo.research_repo_backend.repo.ProjectReviewRepo;
+import com.trinco.researchrepo.research_repo_backend.dto.response.*;
+import com.trinco.researchrepo.research_repo_backend.entity.*;
+import com.trinco.researchrepo.research_repo_backend.repo.*;
 import com.trinco.researchrepo.research_repo_backend.service.GoogleDriveService;
 import com.trinco.researchrepo.research_repo_backend.service.ProjectService;
+import com.trinco.researchrepo.research_repo_backend.service.StudentService;
+import com.trinco.researchrepo.research_repo_backend.util.mappers.CommentMapper;
 import com.trinco.researchrepo.research_repo_backend.util.mappers.ProjectDetailsPageMapper;
 import com.trinco.researchrepo.research_repo_backend.util.mappers.ProjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,15 +44,29 @@ public class ProjectServiceIMPL implements ProjectService {
     @Autowired
     private ProjectDetailsPageMapper projectDetailsPageMapper;
 
+    @Autowired
+    private CommentMapper commentMapper;
+
+    @Autowired
+    private StudentRepo studentRepo;
+
+    @Autowired
+    private UserRepo userRepo;
+
     @Override
     public String approveProject(int pendingId) {
 
         Pending_Projects pending_projects = pendingProjectRepo.findById(pendingId)
                 .orElseThrow(() -> new RuntimeException("pending project not found"));
 
+        String regNo = pending_projects.getRegNo();
+        Students student = studentRepo.findByRegNo(regNo);
+        Optional<Users> uploader = userRepo.findById(student.getUserId());
+
         PendingProjectSaveRequestDTO pendingProjectSaveRequestDTO = projectMapper.EntityToDtoToAddProject(pending_projects);
         ProjectSaveRequestDTO projectSaveRequestDTO = projectMapper.PendingProjectsToProjects(pendingProjectSaveRequestDTO);
         Projects projects = projectMapper.RequestDtoToEntity(projectSaveRequestDTO);
+        projects.setUploader(uploader.get());
 
 
         File pdfFile = new File(pending_projects.getTempPdfPath());
@@ -125,5 +134,22 @@ public class ProjectServiceIMPL implements ProjectService {
             return projectRepo.save(project);
         }
         return null;
+    }
+
+    @Override
+    public List<ProjectsBorwsResponseDTO> getAllProjects() {
+
+        List<Projects> projects = projectRepo.findAll();
+        List<ProjectsBorwsResponseDTO> projectsBorwsResponseDTOS = projectMapper.projectsBorwseEntityListToProjectsBorwsResponseDTOList(projects);
+
+        return projectsBorwsResponseDTOS;
+    }
+
+    @Override
+    public List<ProjectReviewResponseDTO> viewProjectForReview() {
+        List<Projects> projects = projectRepo.findProjectsForReview();
+        List<ProjectReviewResponseDTO> projectReviewResponseDTOS = commentMapper.projectReviewEntityListToResponseDTOList(projects);
+
+        return projectReviewResponseDTOS;
     }
 }
