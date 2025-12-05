@@ -1,6 +1,7 @@
 package com.trinco.researchrepo.research_repo_backend.controller;
 
 import com.trinco.researchrepo.research_repo_backend.dto.request.PendingProjectSaveRequestDTO;
+import com.trinco.researchrepo.research_repo_backend.dto.response.PendingProjectApprovelResponseDTO;
 import com.trinco.researchrepo.research_repo_backend.service.PendingProjectService;
 import com.trinco.researchrepo.research_repo_backend.util.StandardResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/pending_projects")
@@ -65,4 +67,16 @@ public class PendingProjectController {
         );
     }
 
+//get pending projects(supervisor to approve projects)
+    @GetMapping(
+            path = {"/view"}
+    )
+    public ResponseEntity<StandardResponse> getPendingProjects(){
+        List<PendingProjectApprovelResponseDTO> pendingProjectApprovelResponseDTOS = pendingProjectService.getPendingProjects();
+
+        return new ResponseEntity<StandardResponse>(
+                new StandardResponse(201, "success", pendingProjectApprovelResponseDTOS),
+                HttpStatus.OK
+        );
+    }
 }
