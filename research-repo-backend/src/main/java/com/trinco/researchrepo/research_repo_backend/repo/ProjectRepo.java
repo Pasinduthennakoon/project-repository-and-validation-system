@@ -31,7 +31,10 @@ public interface ProjectRepo extends JpaRepository<Projects, Integer> {
     Optional<Projects> findProjectDetailsById(@Param("projectId") int projectId);
 
     // Fetch comments with supervisor
-    @Query("SELECT c FROM Comments c JOIN FETCH c.supervisor WHERE c.project.projectId = :projectId ORDER BY c.createdAt DESC")
+    @Query("SELECT c FROM Comments c " +
+            "JOIN FETCH c.supervisor " +
+            "WHERE c.project.projectId = :projectId " +
+            "ORDER BY c.createdAt DESC")
     List<Comments> findCommentsByProjectId(@Param("projectId") int projectId);
 
 }
