@@ -16,7 +16,7 @@ public class PendingProjectSaveRequestDTO {
     private String githubLink;
     private String tempPdfPath;
     private String department;
-    private int uploaderId;
+    private String regNo;
     private String batch;
     private int supervisorId;
     private String createdAt;
