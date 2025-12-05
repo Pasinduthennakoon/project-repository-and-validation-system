@@ -16,6 +16,7 @@ public class CommentController {
     @Autowired
     private CommentService commentService;
 
+//add comment(supervisor)
     @PostMapping(
             path = {"/add_comment"}
     )

@@ -21,6 +21,7 @@ public class UserController {
     @Autowired
     private PendingUserService pendingUserService;
 
+//sign up userss(supervisor or admin)
     @PostMapping(
             path = {"/save/pending_user"}
     )
@@ -34,6 +35,7 @@ public class UserController {
         );
     }
 
+//approve signup request(admin)
     @PostMapping(
             path = {"/approve_user"},
             params = {"pendingId"}
@@ -49,6 +51,7 @@ public class UserController {
         );
     }
 
+//apdate active state(when user logn in website)
     @PutMapping(
             path = {"/update_active_state"},
             params = {"userId", "activeState"}

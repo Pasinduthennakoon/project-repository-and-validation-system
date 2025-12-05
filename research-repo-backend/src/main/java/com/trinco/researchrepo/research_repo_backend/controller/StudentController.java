@@ -16,6 +16,7 @@ public class StudentController {
     @Autowired
     private StudentService studentService;
 
+//sign up student(student)
     @PostMapping(
             path = {"/save"}
     )

@@ -24,6 +24,7 @@ public class PendingProjectController {
     @Value("${pending.pdf.temp-dir}")
     private String tempPdfDir;
 
+//upload project(student)
     @PostMapping(
             value = "save/pending_project",
             consumes = {"multipart/form-data"}

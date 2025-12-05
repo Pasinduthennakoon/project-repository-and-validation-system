@@ -15,7 +15,7 @@ public class ProjectReviewController {
     @Autowired
     private ProjectReviewService projectReviewService;
 
-
+//add watches to project(when user visite the project description page)
     @PutMapping(
             path = {"/watches/{project_id}"}
     )
