@@ -34,8 +34,8 @@ public class Pending_Projects {
     @Column(name = "department",nullable = false)
     private String department;
 
-    @Column(name = "uploader_id",nullable = false)
-    private int uploaderId;
+    @Column(name = "reg_no",nullable = false)
+    private String regNo;
 
     @Column(name = "batch",nullable = false)
     private String batch;
