@@ -2,6 +2,7 @@ package com.trinco.researchrepo.research_repo_backend.controller;
 
 import com.trinco.researchrepo.research_repo_backend.dto.LanguageUsageDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.response.ProjectPageDataResponseDTO;
+import com.trinco.researchrepo.research_repo_backend.dto.response.ProjectsBorwsResponseDTO;
 import com.trinco.researchrepo.research_repo_backend.entity.Projects;
 import com.trinco.researchrepo.research_repo_backend.exceptions.NotFoundException;
 import com.trinco.researchrepo.research_repo_backend.service.ProjectService;
@@ -96,5 +97,18 @@ public class ProjectController {
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+    }
+
+//get all projects(project browse page)
+    @GetMapping(
+            path = {"/browse"}
+    )
+    public ResponseEntity<StandardResponse> getAllProjects(){
+        List<ProjectsBorwsResponseDTO> allProjects = projectService.getAllProjects();
+
+        return new ResponseEntity<StandardResponse>(
+                new StandardResponse(201, "success", allProjects),
+                HttpStatus.OK
+        );
     }
 }
