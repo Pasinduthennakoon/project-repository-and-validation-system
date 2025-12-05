@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class CommentResponseDTO {
-    private String commentText;
+    private String comment;
     private String createdAt; // Matches entity type
     private int ratingStars; // Matches entity type
     private String commenterName;
