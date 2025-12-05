@@ -36,23 +36,4 @@ public class ProjectDetailsResponseDTO {
     // Review Info (from Reviews)
     private int watches; // Changed to int based on entity
     private int stars;   // Changed to int based on entity
-
-    public ProjectDetailsResponseDTO(int projectId, String title, String abstract_, String githubLink, String pdfLink, String createdAt, String uploaderName, String uploaderPhoto, String uploaderBatch, String uploaderDepartment, String supervisorName, String supervisorPhoto, String supervisorEmail, String supervisorDepartment, int watches, int stars) {
-        this.projectId = projectId;
-        this.title = title;
-        this.abstract_ = abstract_;
-        this.githubLink = githubLink;
-        this.pdfLink = pdfLink;
-        this.createdAt = createdAt;
-        this.uploaderName = uploaderName;
-        this.uploaderPhoto = uploaderPhoto;
-        this.uploaderBatch = uploaderBatch;
-        this.uploaderDepartment = uploaderDepartment;
-        this.supervisorName = supervisorName;
-        this.supervisorPhoto = supervisorPhoto;
-        this.supervisorEmail = supervisorEmail;
-        this.supervisorDepartment = supervisorDepartment;
-        this.watches = watches;
-        this.stars = stars;
-    }
 }
