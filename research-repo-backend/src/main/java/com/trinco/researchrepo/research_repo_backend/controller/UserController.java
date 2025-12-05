@@ -1,6 +1,7 @@
 package com.trinco.researchrepo.research_repo_backend.controller;
 
 import com.trinco.researchrepo.research_repo_backend.dto.request.PendingUserSaveRequestDTO;
+import com.trinco.researchrepo.research_repo_backend.dto.response.UploadProjectUsersResponseDTO;
 import com.trinco.researchrepo.research_repo_backend.exceptions.InvalidInputException;
 import com.trinco.researchrepo.research_repo_backend.service.PendingUserService;
 import com.trinco.researchrepo.research_repo_backend.service.UserSevice;
@@ -9,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/user")
@@ -72,5 +75,18 @@ public class UserController {
         }else {
             throw new InvalidInputException("please enter valid input");
         }
+    }
+
+//get departments and supervisors in that depatments details(student project upload page)
+    @GetMapping(
+            path = {"/upload_uses"}
+    )
+    public ResponseEntity<StandardResponse> uploadUses(){
+        List<UploadProjectUsersResponseDTO> uploadProjectUsersResponseDTOS = userSevice.uploadUses();
+
+        return new ResponseEntity<StandardResponse>(
+                new StandardResponse(201, "success", uploadProjectUsersResponseDTOS),
+                HttpStatus.OK
+        );
     }
 }
