@@ -3,10 +3,13 @@ package com.trinco.researchrepo.research_repo_backend.util.mappers;
 import com.trinco.researchrepo.research_repo_backend.dto.PendingProjectsDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.request.PendingProjectSaveRequestDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.request.ProjectSaveRequestDTO;
+import com.trinco.researchrepo.research_repo_backend.dto.response.ProjectsBorwsResponseDTO;
 import com.trinco.researchrepo.research_repo_backend.entity.Pending_Projects;
 import com.trinco.researchrepo.research_repo_backend.entity.Projects;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+
+import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface ProjectMapper {
@@ -21,4 +24,6 @@ public interface ProjectMapper {
     @Mapping(source = "uploaderId", target = "uploader.userId")
     @Mapping(source = "supervisorId", target = "supervisor.userId")
     Projects RequestDtoToEntity(ProjectSaveRequestDTO pendingProjectSaveRequestDTO);
+
+    List<ProjectsBorwsResponseDTO> projectsBorwseEntityListToProjectsBorwsResponseDTOList(List<Projects> projects);
 }
