@@ -3,6 +3,7 @@ package com.trinco.researchrepo.research_repo_backend.service;
 import com.trinco.researchrepo.research_repo_backend.dto.request.PendingUserSaveRequestDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.request.UserSaveRequestDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.response.UploadProjectUsersResponseDTO;
+import com.trinco.researchrepo.research_repo_backend.dto.response.UserManagementResponseDTO;
 import com.trinco.researchrepo.research_repo_backend.entity.Users;
 import org.springframework.stereotype.Service;
 
@@ -16,4 +17,8 @@ public interface UserSevice {
     String updateActiveState(int userId, boolean status);
 
     List<UploadProjectUsersResponseDTO> uploadUses();
+
+    List<UserManagementResponseDTO> getAllUsersForUserManagemet(String role);
+
+    boolean rejectUser(int pendingId);
 }
