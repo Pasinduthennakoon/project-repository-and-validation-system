@@ -1,63 +1,77 @@
 import React, { useState, useEffect, useMemo } from "react";
 
+const ALL_ROLES = ["All Roles", "ADMIN", "STUDENT", "SUPERVISOR"];
+
 const UserManagementTable = () => {
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState([]); // array of DTOs
   const [loading, setLoading] = useState(true);
 
   // Filters
-  const [roleFilter, setRoleFilter] = useState("");
+  const [roleFilter, setRoleFilter] = useState("All Roles");
   const [departmentFilter, setDepartmentFilter] = useState("");
-  const [batchFilter, setBatchFilter] = useState("");
-  const [regFilter, setRegFilter] = useState("");
+  const [batchSearch, setBatchSearch] = useState("");
+  const [regSearch, setRegSearch] = useState("");
 
   useEffect(() => {
-    fetch("/users.json")
+    setLoading(true);
+    const apiRole = roleFilter === "All Roles" ? "" : roleFilter;
+
+    fetch(`/api/v1/user/user_management?role=${apiRole}`)
       .then((res) => res.json())
-      .then((data) => {
-        setUsers(data);
+      .then((json) => {
+        setUsers(json.data); // ✅ Correct
         setLoading(false);
+
+        // Reset client-side filters when role changes
+        setDepartmentFilter("");
+        setBatchSearch("");
+        setRegSearch("");
       })
       .catch((err) => {
         console.error("Failed to fetch users:", err);
         setLoading(false);
       });
-  }, []);
+  }, [roleFilter]);
 
-  // Dynamic filter options
-  const roles = useMemo(() => [...new Set(users.map((u) => u.role))], [users]);
-  const departments = useMemo(
-    () => [...new Set(users.map((u) => u.department).filter(Boolean))],
-    [users]
-  );
+  // dynamic options
+  const departments = useMemo(() => [...new Set(users.map((u) => u.department).filter(Boolean))], [users]);
 
-  // Filtered users
+  // client-side filters
   const filteredUsers = useMemo(() => {
     return users.filter((u) => {
-      const matchesRole = roleFilter ? u.role === roleFilter : true;
-      const matchesDept = departmentFilter
-        ? u.department === departmentFilter
+      const matchesDept = departmentFilter ? u.department === departmentFilter : true;
+      const matchesBatch = roleFilter === "STUDENT" && batchSearch
+        ? (u.batch || "").toLowerCase().includes(batchSearch.toLowerCase())
         : true;
-      const matchesBatch =
-        roleFilter === "STUDENT" && batchFilter
-          ? u.batch === batchFilter
-          : true;
-      const matchesReg =
-        roleFilter === "STUDENT" && regFilter ? u.reg === regFilter : true;
-
-      return matchesRole && matchesDept && matchesBatch && matchesReg;
+      const matchesReg = roleFilter === "STUDENT" && regSearch
+        ? (u.regNo || "").toLowerCase().includes(regSearch.toLowerCase())
+        : true;
+      return matchesDept && matchesBatch && matchesReg;
     });
-  }, [users, roleFilter, departmentFilter, batchFilter, regFilter]);
+  }, [users, roleFilter, departmentFilter, batchSearch, regSearch]);
 
-  const handleDelete = (id) => {
-    if (window.confirm("Are you sure you want to delete this user?")) {
-      setUsers((prev) => prev.filter((u) => u.id !== id));
-      alert("User deleted (mock)");
-    }
+  const handleDelete = (userId) => {
+    if (!window.confirm("Are you sure you want to delete this user?")) return;
+
+    fetch(`/api/v1/user/${userId}`, { method: "DELETE" })
+      .then((res) => res.json())
+      .then((payload) => {
+        // payload: StandardResponse {code, message, data}
+        if (payload.code === 200) {
+          setUsers((prev) => prev.filter((u) => u.userId !== userId));
+          alert("User deleted successfully");
+        } else {
+          alert("Delete failed: " + payload.message);
+        }
+      })
+      .catch((err) => {
+        console.error("Delete error", err);
+        alert("Failed to delete user");
+      });
   };
 
-  if (loading) return <p>Loading users...</p>;
+  if (loading) return <p className="text-center py-8">Loading users...</p>;
 
-  // Show Batch and RegNo columns only if role filter is STUDENT
   const showStudentColumns = roleFilter === "STUDENT";
 
   return (
@@ -66,91 +80,61 @@ const UserManagementTable = () => {
 
       {/* Filters */}
       <div className="flex gap-4 mb-4 flex-wrap">
-        <select
-          value={roleFilter}
-          onChange={(e) => setRoleFilter(e.target.value)}
-          className="border p-2 rounded"
-        >
-          <option value="">All Roles</option>
-          {roles.map((role) => (
-            <option key={role} value={role}>
-              {role}
-            </option>
+        <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)} className="border p-2 rounded">
+          {ALL_ROLES.map((role) => (
+            <option key={role} value={role}>{role}</option>
           ))}
         </select>
 
-        <select
-          value={departmentFilter}
-          onChange={(e) => setDepartmentFilter(e.target.value)}
-          className="border p-2 rounded"
-        >
+        <select value={departmentFilter} onChange={(e) => setDepartmentFilter(e.target.value)} className="border p-2 rounded">
           <option value="">All Departments</option>
-          {departments.map((dept) => (
-            <option key={dept} value={dept}>
-              {dept}
-            </option>
-          ))}
+          {departments.map((dept) => <option key={dept} value={dept}>{dept}</option>)}
         </select>
 
-        {/* Only show these filters if role filter is STUDENT */}
         {showStudentColumns && (
           <>
-            <input
-              type="text"
-              placeholder="Batch"
-              value={batchFilter}
-              onChange={(e) => setBatchFilter(e.target.value)}
-              className="border p-2 rounded"
-            />
-            <input
-              type="text"
-              placeholder="Reg No"
-              value={regFilter}
-              onChange={(e) => setRegFilter(e.target.value)}
-              className="border p-2 rounded"
-            />
+            <input type="text" placeholder="Batch Search" value={batchSearch} onChange={(e) => setBatchSearch(e.target.value)} className="border p-2 rounded" />
+            <input type="text" placeholder="Reg No Search" value={regSearch} onChange={(e) => setRegSearch(e.target.value)} className="border p-2 rounded" />
           </>
         )}
       </div>
 
-      {/* Users Table */}
+      {/* Table */}
       <div className="overflow-x-auto">
         <table className="min-w-full border border-gray-200">
           <thead className="bg-gray-100">
             <tr>
-              <th className="py-2 px-4 border">Name</th>
-              <th className="py-2 px-4 border">Email</th>
-              <th className="py-2 px-4 border">Role</th>
-              <th className="py-2 px-4 border">Department</th>
+              <th className="py-2 px-4 border text-left">Name</th>
+              <th className="py-2 px-4 border text-left">Email</th>
+              <th className="py-2 px-4 border text-left">Role</th>
+              <th className="py-2 px-4 border text-left">Department</th>
               {showStudentColumns && (
                 <>
-                  <th className="py-2 px-4 border">Batch</th>
-                  <th className="py-2 px-4 border">Reg No</th>
+                  <th className="py-2 px-4 border text-left">Batch</th>
+                  <th className="py-2 px-4 border text-left">Reg No</th>
                 </>
               )}
-              <th className="py-2 px-4 border">Status</th>
-              <th className="py-2 px-4 border">Actions</th>
+              <th className="py-2 px-4 border text-left">Actions</th>
             </tr>
           </thead>
+
           <tbody>
-            {filteredUsers.map((user) => (
-              <tr key={user.id} className="hover:bg-gray-50">
-                <td className="py-2 px-4 border">{user.name}</td>
-                <td className="py-2 px-4 border">{user.email}</td>
-                <td className="py-2 px-4 border">{user.role}</td>
-                <td className="py-2 px-4 border">{user.department || "-"}</td>
+            {filteredUsers.map((u) => (
+              <tr key={u.userId} className="hover:bg-gray-50">
+                <td className="py-2 px-4 border">{u.userName}</td>
+                <td className="py-2 px-4 border">{u.email}</td>
+                <td className="py-2 px-4 border">{u.role}</td>
+                <td className="py-2 px-4 border">{u.department || "-"}</td>
+
                 {showStudentColumns && (
                   <>
-                    <td className="py-2 px-4 border">{user.batch || "-"}</td>
-                    <td className="py-2 px-4 border">{user.reg || "-"}</td>
+                    <td className="py-2 px-4 border">{u.batch || "-"}</td>
+                    <td className="py-2 px-4 border">{u.regNo || "-"}</td>
                   </>
                 )}
-                <td className="py-2 px-4 border">{user.status}</td>
+
                 <td className="py-2 px-4 border">
-                  <button
-                    onClick={() => handleDelete(user.id)}
-                    className="bg-red-500 text-white px-2 py-1 rounded"
-                  >
+                  <button onClick={() => handleDelete(u.userId)} className="bg-red-500 text-white px-2 py-1 rounded text-sm">
                     Delete
                   </button>
                 </td>
@@ -159,10 +143,7 @@ const UserManagementTable = () => {
 
             {filteredUsers.length === 0 && (
               <tr>
-                <td
-                  colSpan={showStudentColumns ? 8 : 5}
-                  className="py-4 text-center text-gray-500"
-                >
+                <td colSpan={showStudentColumns ? 7 : 5} className="py-4 text-center text-gray-500">
                   No users found.
                 </td>
               </tr>
