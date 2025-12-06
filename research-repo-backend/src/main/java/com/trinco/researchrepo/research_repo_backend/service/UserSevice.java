@@ -21,4 +21,10 @@ public interface UserSevice {
     List<UserManagementResponseDTO> getAllUsersForUserManagemet(String role);
 
     boolean rejectUser(int pendingId);
+
+    List<String> getUserDepartments();
+
+    boolean deleteUser(int userId);
+
+    boolean deleteUserPhoto(int userId);
 }
