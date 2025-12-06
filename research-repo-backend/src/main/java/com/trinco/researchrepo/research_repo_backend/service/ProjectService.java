@@ -10,7 +10,6 @@ import com.trinco.researchrepo.research_repo_backend.entity.Projects;
 import java.util.List;
 
 public interface ProjectService {
-    String approveProject(int pendingId);
 
     ProjectPageDataResponseDTO getProjectPageData(int projectId);
 
