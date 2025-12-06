@@ -4,6 +4,7 @@ import com.trinco.researchrepo.research_repo_backend.dto.queryinterfaces.UserDet
 import com.trinco.researchrepo.research_repo_backend.entity.Users;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.repository.query.Param;
@@ -36,4 +37,12 @@ public interface UserRepo extends JpaRepository<Users, Integer> {
             u.userName
     """)
     List<UserDetailsProjection> findUserManagmentDetailsByRole(@Param("role") String role);
+
+    @Query("SELECT DISTINCT u.department FROM Users u WHERE u.department != 'ADMINISTRATION'")
+    List<String> findDistinctDepartments();
+
+    @Modifying
+    @Query("UPDATE Users u SET u.photoLink = NULL WHERE u.userId = :userId")
+    void deletePhotoById(@Param("userId") int userId);
+
 }
