@@ -37,4 +37,10 @@ public interface ProjectRepo extends JpaRepository<Projects, Integer> {
             "ORDER BY c.createdAt DESC")
     List<Comments> findCommentsByProjectId(@Param("projectId") int projectId);
 
+    @Query("""
+        SELECT p FROM Projects p
+        JOIN FETCH p.uploader u
+    """)
+    List<Projects> findProjectsForReview();
+
 }
