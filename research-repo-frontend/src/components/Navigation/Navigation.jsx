@@ -25,7 +25,7 @@ const Navigation = () => {
       { path: "/projects", label: "Browse" },
       { path: "/supervisor/ideavalidation", label: "Validation" },
       { path: "/supervisor/reviews", label: "Review Projects" },
-      { path: "/supervisor/approvals", label: "Approvals" },
+      { path: "/supervisor/approvals", label: "Project Approvals" },
       { path: "/supervisor/dashboard", label: "Analyse" },
     ],
     ADMIN: [
