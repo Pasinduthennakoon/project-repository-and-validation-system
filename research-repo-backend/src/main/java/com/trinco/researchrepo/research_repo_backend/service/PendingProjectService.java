@@ -14,4 +14,7 @@ public interface PendingProjectService {
 
     List<PendingProjectApprovelResponseDTO> getPendingProjects();
 
+    String approveProject(int pendingId);
+
+    boolean rejectPendingProject(int pendingProjectId);
 }
