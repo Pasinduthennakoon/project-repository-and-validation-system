@@ -141,4 +141,30 @@ public class UserServiceIMPL implements UserSevice {
 
         return userManagementResponseDTO;
     }
+
+    @Override
+    public List<String> getUserDepartments() {
+        List<String> departments = userRepo.findDistinctDepartments();
+        return departments;
+    }
+
+//delete users
+    @Override
+    public boolean deleteUser(int userId) {
+        if (userRepo.existsById(userId)) {
+            userRepo.deleteById(userId);
+        }else {
+            throw new PropertyNotFoundException("Not found user for this id");
+        }
+        return false;
+    }
+
+    @Override
+    public boolean deleteUserPhoto(int userId) {
+        if (userRepo.existsById(userId)) {
+            //future also delete from cloud storage
+            userRepo.deletePhotoById(userId);
+        }
+        return true;
+    }
 }
