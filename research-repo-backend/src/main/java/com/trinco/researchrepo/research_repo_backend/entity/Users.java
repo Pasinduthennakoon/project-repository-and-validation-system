@@ -43,12 +43,12 @@ public class Users {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Students student;
 
-    @OneToOne(mappedBy = "uploader")
+    @OneToOne(mappedBy = "uploader", cascade = CascadeType.ALL)
     private Projects project; // The project uploaded by this user
 
-    @OneToMany(mappedBy = "supervisor")
+    @OneToMany(mappedBy = "supervisor", cascade = CascadeType.ALL)
     private List<Projects> supervisedProjects; // Projects supervised by this user
 
-    @OneToMany(mappedBy = "supervisor")
+    @OneToMany(mappedBy = "supervisor", cascade = CascadeType.ALL)
     private List<Comments> commentedProjects;
 }
