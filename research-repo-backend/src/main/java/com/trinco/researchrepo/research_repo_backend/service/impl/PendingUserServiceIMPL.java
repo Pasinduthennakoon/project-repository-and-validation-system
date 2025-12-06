@@ -1,6 +1,7 @@
 package com.trinco.researchrepo.research_repo_backend.service.impl;
 
 import com.trinco.researchrepo.research_repo_backend.dto.request.PendingUserSaveRequestDTO;
+import com.trinco.researchrepo.research_repo_backend.dto.response.PendingUsersResponseDTO;
 import com.trinco.researchrepo.research_repo_backend.entity.Pending_Users;
 import com.trinco.researchrepo.research_repo_backend.exceptions.EntryDuplicationException;
 import com.trinco.researchrepo.research_repo_backend.repo.PendingUsersRepo;
@@ -8,6 +9,8 @@ import com.trinco.researchrepo.research_repo_backend.service.PendingUserService;
 import com.trinco.researchrepo.research_repo_backend.util.mappers.PendingUserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class PendingUserServiceIMPL implements PendingUserService {
@@ -27,5 +30,13 @@ public class PendingUserServiceIMPL implements PendingUserService {
         }else {
             throw new EntryDuplicationException("Pending user already exists");
         }
+    }
+
+    @Override
+    public List<PendingUsersResponseDTO> getPendingUsersForApproval() {
+        List<Pending_Users> pendingUsers = pendingUsersRepo.findAll();
+        List<PendingUsersResponseDTO> pendingUsersResponseDTOS = pendingUserMapper.ResponseEntityListToDtoList(pendingUsers);
+
+        return pendingUsersResponseDTOS;
     }
 }
