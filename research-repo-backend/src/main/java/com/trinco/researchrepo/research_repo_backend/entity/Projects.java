@@ -59,9 +59,9 @@ public class Projects {
     @Column(name = "tags", columnDefinition = "json")
     private List<String> tags;
 
-    @OneToOne(mappedBy = "project")
+    @OneToOne(mappedBy = "project", cascade = CascadeType.ALL)
     private Reviews reviews;
 
-    @OneToMany(mappedBy = "project")
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private List<Comments> commentedProjects;
 }
