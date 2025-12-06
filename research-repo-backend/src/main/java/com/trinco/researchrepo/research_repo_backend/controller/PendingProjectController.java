@@ -79,4 +79,36 @@ public class PendingProjectController {
                 HttpStatus.OK
         );
     }
+
+    //approve project(supervisor)
+    @PostMapping(
+            path = {"/approve_project"},
+            params = {"pendingId"}
+    )
+    public ResponseEntity<StandardResponse>approveProject(
+            @RequestParam(value = "pendingId") int pendingId) throws Exception {
+
+        String projectId = pendingProjectService.approveProject(pendingId);
+
+        return new  ResponseEntity<StandardResponse>(
+                new StandardResponse(201, "Project approved", projectId),
+                HttpStatus.CREATED
+        );
+    }
+
+    //reject project(supervisor)
+    @DeleteMapping(
+            path = {"/reject_pending_project"},
+            params = {"pendingProjectId"}
+    )
+    public ResponseEntity<StandardResponse>rejectPendingProject(
+            @RequestParam(value = "pendingProjectId") int pendingProjectId
+    ){
+        boolean rejectedProject = pendingProjectService.rejectPendingProject(pendingProjectId);
+
+        return new ResponseEntity<StandardResponse>(
+                new StandardResponse(201, "success", rejectedProject),
+                HttpStatus.OK
+        );
+    }
 }
