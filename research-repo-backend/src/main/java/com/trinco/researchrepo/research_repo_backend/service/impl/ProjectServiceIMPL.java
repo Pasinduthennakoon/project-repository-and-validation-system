@@ -27,19 +27,10 @@ import java.util.stream.Collectors;
 public class ProjectServiceIMPL implements ProjectService {
 
     @Autowired
-    private PendingProjectRepo pendingProjectRepo;
-
-    @Autowired
     private ProjectMapper projectMapper;
 
     @Autowired
     private ProjectRepo projectRepo;
-
-    @Autowired
-    private GoogleDriveService googleDriveService;
-
-    @Autowired
-    private ProjectReviewRepo projectReviewRepo;
 
     @Autowired
     private ProjectDetailsPageMapper projectDetailsPageMapper;
@@ -47,54 +38,6 @@ public class ProjectServiceIMPL implements ProjectService {
     @Autowired
     private CommentMapper commentMapper;
 
-    @Autowired
-    private StudentRepo studentRepo;
-
-    @Autowired
-    private UserRepo userRepo;
-
-    @Override
-    public String approveProject(int pendingId) {
-
-        Pending_Projects pending_projects = pendingProjectRepo.findById(pendingId)
-                .orElseThrow(() -> new RuntimeException("pending project not found"));
-
-        String regNo = pending_projects.getRegNo();
-        Students student = studentRepo.findByRegNo(regNo);
-        Optional<Users> uploader = userRepo.findById(student.getUserId());
-
-        PendingProjectSaveRequestDTO pendingProjectSaveRequestDTO = projectMapper.EntityToDtoToAddProject(pending_projects);
-        ProjectSaveRequestDTO projectSaveRequestDTO = projectMapper.PendingProjectsToProjects(pendingProjectSaveRequestDTO);
-        Projects projects = projectMapper.RequestDtoToEntity(projectSaveRequestDTO);
-        projects.setUploader(uploader.get());
-
-
-        File pdfFile = new File(pending_projects.getTempPdfPath());
-
-        try {
-
-            String googleDriveUrl = googleDriveService.uploadFileToDrive(pdfFile);
-
-            projects.setPdfLink(googleDriveUrl);
-            projectRepo.save(projects);
-
-            Reviews reviews = new Reviews();
-            reviews.setProject(projects);
-            projectReviewRepo.save(reviews);
-
-
-            // 3. Delete temp file
-            if(pdfFile.exists()) pdfFile.delete();
-
-            // 4. Remove pending project row
-            pendingProjectRepo.delete(pending_projects);
-
-            return String.valueOf(projects.getProjectId());
-
-        } catch (Exception e) {
-            throw new RuntimeException("Project approval failed due to file or database error.", e);
-        }
-    }
 
     @Override
     public ProjectPageDataResponseDTO getProjectPageData(int projectId) {
