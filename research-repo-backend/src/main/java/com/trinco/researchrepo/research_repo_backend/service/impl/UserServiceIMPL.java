@@ -2,6 +2,7 @@ package com.trinco.researchrepo.research_repo_backend.service.impl;
 
 import com.trinco.researchrepo.research_repo_backend.dto.request.PendingUserSaveRequestDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.request.UserSaveRequestDTO;
+import com.trinco.researchrepo.research_repo_backend.dto.response.UploadProjectUsersResponseDTO;
 import com.trinco.researchrepo.research_repo_backend.entity.Pending_Users;
 import com.trinco.researchrepo.research_repo_backend.entity.Students;
 import com.trinco.researchrepo.research_repo_backend.entity.Users;
@@ -10,10 +11,13 @@ import com.trinco.researchrepo.research_repo_backend.exceptions.NotFoundExceptio
 import com.trinco.researchrepo.research_repo_backend.repo.PendingUsersRepo;
 import com.trinco.researchrepo.research_repo_backend.repo.UserRepo;
 import com.trinco.researchrepo.research_repo_backend.service.UserSevice;
+import com.trinco.researchrepo.research_repo_backend.util.mappers.PendingProjectMapper;
 import com.trinco.researchrepo.research_repo_backend.util.mappers.UsersMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class UserServiceIMPL implements UserSevice {
@@ -29,6 +33,9 @@ public class UserServiceIMPL implements UserSevice {
 
     @Autowired
     private PendingUsersRepo pendingUsersRepo2;
+
+    @Autowired
+    private PendingProjectMapper pendingProjectMapper;
 
     @Override
     public Users addUser(UserSaveRequestDTO userSaveRequestDTO) {
@@ -72,5 +79,13 @@ public class UserServiceIMPL implements UserSevice {
         } else {
             throw new NotFoundException("this user not found");
         }
+    }
+
+    @Override
+    public List<UploadProjectUsersResponseDTO> uploadUses() {
+        List<Users> users = userRepo.findAll();
+        List<UploadProjectUsersResponseDTO> uploadProjectUsersResponseDTOS = pendingProjectMapper.ResponseUsersEntityListToDtoList(users);
+
+        return uploadProjectUsersResponseDTOS;
     }
 }
