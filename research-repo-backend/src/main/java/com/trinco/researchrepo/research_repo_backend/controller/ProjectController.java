@@ -22,21 +22,6 @@ public class ProjectController {
     @Autowired
     private ProjectService projectService;
 
-//approve project(supervisor)
-    @PostMapping(
-            path = {"/approve_project"},
-            params = {"pendingId"}
-    )
-    public ResponseEntity<StandardResponse>approveProject(
-            @RequestParam(value = "pendingId") int pendingId) throws Exception {
-
-        String projectId = projectService.approveProject(pendingId);
-
-        return new  ResponseEntity<StandardResponse>(
-                new StandardResponse(201, "Project approved", projectId),
-                HttpStatus.CREATED
-        );
-    }
 
 //get project details(all roles)
     @GetMapping("/{projectId}/details")
