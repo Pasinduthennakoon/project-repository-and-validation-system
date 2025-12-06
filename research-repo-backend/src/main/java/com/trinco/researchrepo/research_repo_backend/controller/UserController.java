@@ -104,4 +104,49 @@ public class UserController {
                 HttpStatus.OK
         );
     }
+
+//get users departments(students' project validation page)
+    @GetMapping(
+            path = {"/get_user_departments"}
+    )
+    public ResponseEntity<StandardResponse> getUserDepartments(){
+        List<String> departments = userSevice.getUserDepartments();
+
+        return new ResponseEntity<StandardResponse>(
+                new StandardResponse(201, "success", departments),
+                HttpStatus.OK
+        );
+    }
+
+//delete user
+    @DeleteMapping(
+            path = {"/delete"},
+            params = {"userId"}
+    )
+    public ResponseEntity<StandardResponse> deleteUser(
+            @RequestParam(value = "userId") int userId
+    ){
+        boolean deletedUser = userSevice.deleteUser(userId);
+
+        return new ResponseEntity<StandardResponse>(
+                new StandardResponse(201, "successfully deleted user", deletedUser),
+                HttpStatus.OK
+        );
+    }
+
+//delete users photo
+    @DeleteMapping(
+            path = {"/photo/delete"},
+            params = {"userId"}
+    )
+    public ResponseEntity<StandardResponse> deletePhoto(
+            @RequestParam(value = "userId") int userId
+    ){
+        boolean deletedPhoto = userSevice.deleteUserPhoto(userId);
+
+        return new ResponseEntity<StandardResponse>(
+                new StandardResponse(201, "user photo successfully deleted", deletedPhoto),
+                HttpStatus.OK
+        );
+    }
 }
