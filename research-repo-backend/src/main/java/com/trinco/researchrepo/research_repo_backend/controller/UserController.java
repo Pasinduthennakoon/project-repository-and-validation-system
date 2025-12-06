@@ -2,6 +2,7 @@ package com.trinco.researchrepo.research_repo_backend.controller;
 
 import com.trinco.researchrepo.research_repo_backend.dto.request.PendingUserSaveRequestDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.response.UploadProjectUsersResponseDTO;
+import com.trinco.researchrepo.research_repo_backend.dto.response.UserManagementResponseDTO;
 import com.trinco.researchrepo.research_repo_backend.exceptions.InvalidInputException;
 import com.trinco.researchrepo.research_repo_backend.service.PendingUserService;
 import com.trinco.researchrepo.research_repo_backend.service.UserSevice;
@@ -21,7 +22,7 @@ public class UserController {
     @Autowired
     private UserSevice userSevice;
 
-//approve signup request(admin)
+    //approve signup request(admin)
     @PostMapping(
             path = {"/approve_user"},
             params = {"pendingId"}
@@ -37,7 +38,23 @@ public class UserController {
         );
     }
 
-//update active state(when user logn in website)
+//reject signup request(admin)
+    @DeleteMapping(
+            path = {"/reject_user"},
+            params = {"pendingId"}
+    )
+    public ResponseEntity<StandardResponse> rejectUser(
+            @RequestParam(value = "pendingId") int pendingId
+    ){
+        boolean rejectedUser = userSevice.rejectUser(pendingId);
+
+        return new ResponseEntity<StandardResponse>(
+                new StandardResponse(201, "user rejected", rejectedUser),
+                HttpStatus.OK
+        );
+    }
+
+    //update active state(when user logn in website)
     @PutMapping(
             path = {"/update_active_state"},
             params = {"userId", "activeState"}
@@ -46,7 +63,7 @@ public class UserController {
             @RequestParam(value = "userId") int userId,
             @RequestParam(value = "activeState") String activeState
     ) {
-        if(activeState.equalsIgnoreCase("active") | activeState.equalsIgnoreCase("inactive")){
+        if (activeState.equalsIgnoreCase("active") | activeState.equalsIgnoreCase("inactive")) {
 
             boolean status = activeState.equalsIgnoreCase("active") ? true : false;
             String resualt = userSevice.updateActiveState(userId, status);
@@ -55,20 +72,35 @@ public class UserController {
                     new StandardResponse(200, "success", resualt),
                     HttpStatus.OK
             );
-        }else {
+        } else {
             throw new InvalidInputException("please enter valid input");
         }
     }
 
-//get departments and supervisors in that depatments details(student project upload page)
+    //get departments and supervisors in that depatments details(student project upload page)
     @GetMapping(
             path = {"/upload_uses"}
     )
-    public ResponseEntity<StandardResponse> uploadUses(){
+    public ResponseEntity<StandardResponse> uploadUses() {
         List<UploadProjectUsersResponseDTO> uploadProjectUsersResponseDTOS = userSevice.uploadUses();
 
         return new ResponseEntity<StandardResponse>(
                 new StandardResponse(201, "success", uploadProjectUsersResponseDTOS),
+                HttpStatus.OK
+        );
+    }
+
+    @GetMapping(
+            path = {"/user_management"},
+            params = {"role"}
+    )
+    public ResponseEntity<StandardResponse> getUsersForUserManagement(
+            @RequestParam(value = "role", required = false) String role
+    ) {
+        List<UserManagementResponseDTO> userManagementResponseDTOS = userSevice.getAllUsersForUserManagemet(role);
+
+        return new ResponseEntity<StandardResponse>(
+                new StandardResponse(201, "success", userManagementResponseDTOS),
                 HttpStatus.OK
         );
     }
