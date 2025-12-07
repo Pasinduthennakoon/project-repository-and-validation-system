@@ -11,6 +11,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface UsersMapper {
 
+    @Mapping(target = "password", ignore = true)
     Users RequestDtoToEntity(UserSaveRequestDTO userSaveRequestDTO);
 
     default UserSaveRequestDTO studentDtoToUserDto(StudentSaveRequestDTO studentSaveRequestDTO) {
@@ -21,14 +22,12 @@ public interface UsersMapper {
                 studentSaveRequestDTO.getEmail(),
                 studentSaveRequestDTO.getRole(),
                 studentSaveRequestDTO.getPassword(),
-                studentSaveRequestDTO.getPhotoLink(),
                 studentSaveRequestDTO.isActiveState()
         );
     }
 
     PendingUserSaveRequestDTO EntityToPenddingUserDto(Pending_Users pending_Users);
 
-    @Mapping(target = "photoLink", ignore = true)
     @Mapping(target = "activeState", ignore = true)
     @Mapping(target = "studentInfo", ignore = true)
     UserSaveRequestDTO PendingUserDtoToUserDto(PendingUserSaveRequestDTO pendingUserSaveRequestDTO);
