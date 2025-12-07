@@ -1,7 +1,9 @@
 package com.trinco.researchrepo.research_repo_backend.service;
 
+import com.trinco.researchrepo.research_repo_backend.dto.request.LoginRequestDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.request.PendingUserSaveRequestDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.request.UserSaveRequestDTO;
+import com.trinco.researchrepo.research_repo_backend.dto.response.LoginResponseDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.response.UploadProjectUsersResponseDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.response.UserManagementResponseDTO;
 import com.trinco.researchrepo.research_repo_backend.entity.Users;
@@ -27,4 +29,6 @@ public interface UserSevice {
     boolean deleteUser(int userId);
 
     boolean deleteUserPhoto(int userId);
+
+    LoginResponseDTO authenticate(LoginRequestDTO loginRequestDTO);
 }
