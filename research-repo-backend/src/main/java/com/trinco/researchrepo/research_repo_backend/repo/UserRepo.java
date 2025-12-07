@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @EnableJpaRepositories
 @Repository
@@ -45,4 +46,5 @@ public interface UserRepo extends JpaRepository<Users, Integer> {
     @Query("UPDATE Users u SET u.photoLink = NULL WHERE u.userId = :userId")
     void deletePhotoById(@Param("userId") int userId);
 
+    Users findByEmail(String email);
 }
