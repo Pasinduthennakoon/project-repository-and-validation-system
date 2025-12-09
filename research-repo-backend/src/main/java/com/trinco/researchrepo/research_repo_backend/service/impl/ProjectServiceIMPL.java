@@ -95,4 +95,10 @@ public class ProjectServiceIMPL implements ProjectService {
 
         return projectReviewResponseDTOS;
     }
+
+    @Override
+    public List<ProjectsByUserResponseDTO> getMyProjects(int userId) {
+        List<ProjectsByUserResponseDTO> departments = projectRepo.findProjectTitlesByUploaderId(userId);
+        return departments;
+    }
 }
