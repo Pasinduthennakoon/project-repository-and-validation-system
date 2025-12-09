@@ -1,6 +1,8 @@
 package com.trinco.researchrepo.research_repo_backend.controller;
 
+import com.trinco.researchrepo.research_repo_backend.dto.request.LoginRequestDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.request.PendingUserSaveRequestDTO;
+import com.trinco.researchrepo.research_repo_backend.dto.response.LoginResponseDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.response.UploadProjectUsersResponseDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.response.UserManagementResponseDTO;
 import com.trinco.researchrepo.research_repo_backend.exceptions.InvalidInputException;
@@ -52,6 +54,29 @@ public class UserController {
                 new StandardResponse(201, "user rejected", rejectedUser),
                 HttpStatus.OK
         );
+    }
+
+    //login user
+    @PostMapping(
+            path = {"/login"}
+    )
+    public ResponseEntity<StandardResponse> loginUser(
+            @RequestBody LoginRequestDTO loginRequestDTO
+            ){
+        try {
+            LoginResponseDTO loginResponseDTO = userSevice.authenticate(loginRequestDTO);
+
+            return new ResponseEntity<StandardResponse>(
+                    new StandardResponse(201, "Login Successful", loginResponseDTO),
+                    HttpStatus.OK
+            );
+        } catch (RuntimeException e){
+            return new ResponseEntity<StandardResponse>(
+                    new StandardResponse(401, e.getMessage(), null),
+                    HttpStatus.UNAUTHORIZED
+            );
+        }
+
     }
 
     //update active state(when user logn in website)
