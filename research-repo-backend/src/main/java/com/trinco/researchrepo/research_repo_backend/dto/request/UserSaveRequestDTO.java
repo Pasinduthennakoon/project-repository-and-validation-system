@@ -14,18 +14,18 @@ public class UserSaveRequestDTO {
     private String email;
     private String role;        // e.g., "STUDENT", "TEACHER"
     private String password;
-    private String photoLink;
     private boolean activeState;
 
     private StudentSaveRequestDTO studentInfo;
 
-    public UserSaveRequestDTO(String userName, String department, String email, String role, String password, String photoLink, boolean activeState) {
+    public UserSaveRequestDTO(String userName, String department, String email, String role, String password,  boolean activeState) {
         this.userName = userName;
         this.department = department;
         this.email = email;
         this.role = role;
         this.password = password;
-        this.photoLink = photoLink;
         this.activeState = activeState;
     }
+
+
 }
