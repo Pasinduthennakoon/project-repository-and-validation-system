@@ -5,6 +5,7 @@ import com.trinco.researchrepo.research_repo_backend.dto.request.ProjectSaveRequ
 import com.trinco.researchrepo.research_repo_backend.dto.response.ProjectPageDataResponseDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.response.ProjectReviewResponseDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.response.ProjectsBorwsResponseDTO;
+import com.trinco.researchrepo.research_repo_backend.dto.response.ProjectsByUserResponseDTO;
 import com.trinco.researchrepo.research_repo_backend.entity.Projects;
 
 import java.util.List;
@@ -20,4 +21,6 @@ public interface ProjectService {
     List<ProjectsBorwsResponseDTO> getAllProjects();
 
     List<ProjectReviewResponseDTO> viewProjectForReview();
+
+    List<ProjectsByUserResponseDTO> getMyProjects(int userId);
 }
