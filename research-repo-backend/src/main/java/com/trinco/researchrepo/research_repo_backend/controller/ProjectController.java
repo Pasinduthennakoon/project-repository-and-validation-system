@@ -3,6 +3,7 @@ package com.trinco.researchrepo.research_repo_backend.controller;
 import com.trinco.researchrepo.research_repo_backend.dto.LanguageUsageDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.response.ProjectPageDataResponseDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.response.ProjectsBorwsResponseDTO;
+import com.trinco.researchrepo.research_repo_backend.dto.response.ProjectsByUserResponseDTO;
 import com.trinco.researchrepo.research_repo_backend.entity.Projects;
 import com.trinco.researchrepo.research_repo_backend.exceptions.NotFoundException;
 import com.trinco.researchrepo.research_repo_backend.service.ProjectService;
@@ -95,5 +96,22 @@ public class ProjectController {
                 new StandardResponse(201, "success", allProjects),
                 HttpStatus.OK
         );
+    }
+
+    @GetMapping(
+            path = {"/my_projects"},
+            params = {"userId"}
+    )
+    public ResponseEntity<StandardResponse> getMyProjects(
+            @RequestParam(value = "userId") int userId
+    ){
+        System.out.println(userId);
+        List<ProjectsByUserResponseDTO> departments = projectService.getMyProjects(userId);
+
+        return new ResponseEntity<StandardResponse>(
+                new StandardResponse(200, "success", departments),
+                HttpStatus.OK
+        );
+
     }
 }
