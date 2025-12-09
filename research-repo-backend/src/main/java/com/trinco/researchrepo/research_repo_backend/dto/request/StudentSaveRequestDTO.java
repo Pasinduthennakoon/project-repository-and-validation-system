@@ -14,7 +14,6 @@ public class StudentSaveRequestDTO {
     private String email;
     private String role;
     private String password;
-    private String photoLink;
     private boolean activeState;
     private String regNo;
     private String batch;
