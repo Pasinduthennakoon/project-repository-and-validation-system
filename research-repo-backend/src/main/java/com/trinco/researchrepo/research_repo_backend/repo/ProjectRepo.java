@@ -2,6 +2,7 @@ package com.trinco.researchrepo.research_repo_backend.repo;
 
 import com.trinco.researchrepo.research_repo_backend.dto.LanguageUsageDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.response.ProjectDetailsResponseDTO;
+import com.trinco.researchrepo.research_repo_backend.dto.response.ProjectsByUserResponseDTO;
 import com.trinco.researchrepo.research_repo_backend.entity.Comments;
 import com.trinco.researchrepo.research_repo_backend.entity.Projects;
 import jakarta.transaction.Transactional;
@@ -43,4 +44,9 @@ public interface ProjectRepo extends JpaRepository<Projects, Integer> {
     """)
     List<Projects> findProjectsForReview();
 
+    @Query("SELECT new com.trinco.researchrepo.research_repo_backend.dto.response.ProjectsByUserResponseDTO(p.projectId, p.title) " +
+            "FROM Projects p " +
+            "JOIN p.uploader u " + // Remove FETCH keyword when using projections
+            "WHERE u.userId = :userId")
+    List<ProjectsByUserResponseDTO> findProjectTitlesByUploaderId(@Param("userId") int userId);
 }
