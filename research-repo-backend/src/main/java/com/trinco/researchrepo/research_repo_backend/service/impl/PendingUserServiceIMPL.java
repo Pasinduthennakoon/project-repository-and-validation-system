@@ -8,6 +8,7 @@ import com.trinco.researchrepo.research_repo_backend.repo.PendingUsersRepo;
 import com.trinco.researchrepo.research_repo_backend.service.PendingUserService;
 import com.trinco.researchrepo.research_repo_backend.util.mappers.PendingUserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,9 +22,14 @@ public class PendingUserServiceIMPL implements PendingUserService {
     @Autowired
     private PendingUsersRepo pendingUsersRepo;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     public String addPendingUser(PendingUserSaveRequestDTO pendingUserSaveRequestDTO) {
         Pending_Users pendingUsers = pendingUserMapper.RequestToDtoToEntity(pendingUserSaveRequestDTO);
+        String encodedPassword = passwordEncoder.encode(pendingUserSaveRequestDTO.getPassword());
+        pendingUsers.setPassword(encodedPassword);
         if (!pendingUsersRepo.existsById(pendingUsers.getPendingUserId())){
             pendingUsersRepo.save(pendingUsers);
             return "Pending user added";
