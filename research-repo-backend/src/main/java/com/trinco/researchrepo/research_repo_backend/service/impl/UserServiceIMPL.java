@@ -1,8 +1,10 @@
 package com.trinco.researchrepo.research_repo_backend.service.impl;
 
 import com.trinco.researchrepo.research_repo_backend.dto.queryinterfaces.UserDetailsProjection;
+import com.trinco.researchrepo.research_repo_backend.dto.request.LoginRequestDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.request.PendingUserSaveRequestDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.request.UserSaveRequestDTO;
+import com.trinco.researchrepo.research_repo_backend.dto.response.LoginResponseDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.response.UploadProjectUsersResponseDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.response.UserManagementResponseDTO;
 import com.trinco.researchrepo.research_repo_backend.entity.Pending_Users;
@@ -12,12 +14,14 @@ import com.trinco.researchrepo.research_repo_backend.exceptions.EntryDuplication
 import com.trinco.researchrepo.research_repo_backend.exceptions.NotFoundException;
 import com.trinco.researchrepo.research_repo_backend.repo.PendingUsersRepo;
 import com.trinco.researchrepo.research_repo_backend.repo.UserRepo;
+import com.trinco.researchrepo.research_repo_backend.service.JwtService;
 import com.trinco.researchrepo.research_repo_backend.service.UserSevice;
 import com.trinco.researchrepo.research_repo_backend.util.mappers.PendingProjectMapper;
 import com.trinco.researchrepo.research_repo_backend.util.mappers.UsersMapper;
 import jakarta.el.PropertyNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,14 +40,19 @@ public class UserServiceIMPL implements UserSevice {
     private PendingUsersRepo pendingUsersRepo;
 
     @Autowired
-    private PendingUsersRepo pendingUsersRepo2;
+    private PendingProjectMapper pendingProjectMapper;
 
     @Autowired
-    private PendingProjectMapper pendingProjectMapper;
+    private JwtService jwtService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public Users addUser(UserSaveRequestDTO userSaveRequestDTO) {
         Users user = usersMapper.RequestDtoToEntity(userSaveRequestDTO);
+        String encodedPassword = passwordEncoder.encode(userSaveRequestDTO.getPassword());
+        user.setPassword(encodedPassword);
         user.setActiveState(true);
         if(!userRepo.existsById(user.getUserId())){
             return userRepo.save(user);
@@ -58,9 +67,11 @@ public class UserServiceIMPL implements UserSevice {
         Pending_Users pendinga_users = pendingUsersRepo.findById(pendingId)
                 .orElseThrow(() -> new RuntimeException("pending user not found"));
 
+
         PendingUserSaveRequestDTO pendingUserSaveRequestDTO = usersMapper.EntityToPenddingUserDto(pendinga_users);
         UserSaveRequestDTO userSaveRequestDTO = usersMapper.PendingUserDtoToUserDto(pendingUserSaveRequestDTO);
         Users users = usersMapper.RequestDtoToEntity(userSaveRequestDTO);
+        users.setPassword(pendinga_users.getPassword());
 
         if (userRepo.existsByEmail(userSaveRequestDTO.getEmail())) {
             throw new EntryDuplicationException("Email already exists!");
@@ -81,6 +92,57 @@ public class UserServiceIMPL implements UserSevice {
             throw new PropertyNotFoundException("Not found user for this id");
         }
         return true;
+    }
+
+    @Override
+    public LoginResponseDTO authenticate(LoginRequestDTO request) {
+        // 1. Find User by Email (Assuming Repo is injected as userRepo)
+        Users user = userRepo.findByEmail(request.getEmail());
+
+        if (user == null) {
+            // Throw exception that can be caught by a Global Exception Handler
+            throw new NotFoundException("Invalid credentials: User not found.");
+        }
+
+        System.out.println("user given password : " + request.getPassword());
+
+        // 3. ⚠️ CRITICAL STEP: VERIFY THE PASSWORD HASH
+        // This method returns true ONLY if the raw password matches the hash.
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            // Throw exception if passwords don't match
+            throw new RuntimeException("Invalid Credentials.");
+        }
+        // 2. Generate Token (Crucial for session management)
+        String jwtToken = jwtService.generateToken(user); // JWT is highly recommended
+
+        // 3. Build Response and conditionally include student-specific fields
+
+        // Initialize student fields to null
+        String responseRegNo = null;
+        String responseBatch = null;
+
+        if ("STUDENT".equals(user.getRole())) {
+            Students studentDetails = user.getStudent(); // Get the related Students entity
+
+            // ⚠️ CRITICAL NULL CHECK: Ensure the Students relationship object exists
+            if (studentDetails != null) {
+                responseRegNo = studentDetails.getRegNo();
+                responseBatch = studentDetails.getBatch();
+            }
+        }
+
+        // 4. Build Response
+        return new LoginResponseDTO(
+                jwtToken,
+                user.getUserId(),
+                user.getUserName(),
+                user.getRole(),
+                user.getEmail(),
+                user.getDepartment(),
+                user.getPhotoLink(),
+                responseRegNo,
+                responseBatch
+        );
     }
 
 
