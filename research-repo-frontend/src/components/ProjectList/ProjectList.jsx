@@ -21,7 +21,7 @@ function ProjectList({ projects }) {
 
           {/* Action */}
           <Link
-            to={`/projects/${project.id}`} // match your route
+            to={`/projects/${project.projectId}`} // match your route
             className="mt-4 inline-block text-blue-600 hover:underline"
           >
             View Project →
