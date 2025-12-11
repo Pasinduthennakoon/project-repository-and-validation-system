@@ -2,30 +2,43 @@ import { useEffect, useState } from "react";
 
 function IdeaComparisonPage() {
   const [result, setResult] = useState(null);
-  const [departments, setDepartments] = useState([]);
+    const [departments, setDepartments] = useState([]);
+    const [loadingDepartments, setLoadingDepartments] = useState(true);
+    const [departmentError, setDepartmentError] = useState(null);
 
-  // ✅ Fetch departments from public/users.json
-  useEffect(() => {
-    fetch("/users.json")
-      .then((res) => res.json())
-      .then((data) => {
-        // Filter only students and exclude "Administration"
-        const studentDepartments = [
-          ...new Set(
-            data
-              .filter(
-                (u) =>
-                  u.role === "STUDENT" &&
-                  u.department &&
-                  u.department !== "Administration"
-              )
-              .map((u) => u.department)
-          ),
-        ];
-        setDepartments(studentDepartments);
-      })
-      .catch((err) => console.error("Error loading users:", err));
-  }, []);
+  // ✅ Fetch departments from the Spring Boot API
+    useEffect(() => {
+        const fetchDepartments = async () => {
+            const API_URL = "/api/v1/user/get_user_departments"; // Adjust the base path if your controller has one
+
+            try {
+                const res = await fetch(API_URL);
+
+                if (!res.ok) {
+                    throw new Error(`HTTP error! Status: ${res.status}`);
+                }
+
+                const responseData = await res.json();
+                
+                // 1. Check the StandardResponse status code
+                if (responseData.code !== 201) { // Checking for 201 (as defined in your controller)
+                    throw new Error(responseData.message || "Failed to retrieve departments.");
+                }
+
+                // 2. Set the departments list from the 'data' field
+                // responseData.data should contain List<String>
+                setDepartments(responseData.data); 
+                
+            } catch (err) {
+                console.error("Error fetching departments:", err);
+                setDepartmentError(err.message);
+            } finally {
+                setLoadingDepartments(false);
+            }
+        };
+
+        fetchDepartments();
+    }, []); // Empty dependency array means it runs once on mount
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -78,14 +91,22 @@ function IdeaComparisonPage() {
         />
 
         {/* ✅ Department dropdown populated dynamically */}
-        <select name="department" className="border p-2 w-full" required>
-          <option value="">Select Department</option>
-          {departments.map((dept, index) => (
-            <option key={index} value={dept}>
-              {dept}
-            </option>
-          ))}
-        </select>
+                <select name="department" className="border p-2 w-full" required>
+                    <option value="">
+                        {loadingDepartments 
+                            ? "Loading Departments..." 
+                            : departmentError 
+                            ? "Error loading departments"
+                            : "Select Department"}
+                    </option>
+                    
+                    {/* Render options only if departments array is populated */}
+                    {departments.map((dept, index) => (
+                        <option key={index} value={dept}>
+                            {dept}
+                        </option>
+                    ))}
+                </select>
 
         <input
           name="batch"
