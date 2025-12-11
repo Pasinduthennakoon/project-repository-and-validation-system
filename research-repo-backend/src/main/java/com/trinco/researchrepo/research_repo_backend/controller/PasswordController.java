@@ -16,7 +16,7 @@ public class PasswordController {
     @Autowired
     private PasswordService passwordService;
 
-    @PostMapping(
+    @PutMapping(
             path = {"/change"},
             params = {"userId"}
     )
