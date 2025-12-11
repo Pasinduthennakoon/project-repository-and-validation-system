@@ -3,6 +3,7 @@ package com.trinco.researchrepo.research_repo_backend.service.impl;
 import com.trinco.researchrepo.research_repo_backend.dto.queryinterfaces.UserDetailsProjection;
 import com.trinco.researchrepo.research_repo_backend.dto.request.LoginRequestDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.request.PendingUserSaveRequestDTO;
+import com.trinco.researchrepo.research_repo_backend.dto.request.UpdateUserDetailsDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.request.UserSaveRequestDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.response.LoginResponseDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.response.UploadProjectUsersResponseDTO;
@@ -145,6 +146,17 @@ public class UserServiceIMPL implements UserSevice {
         );
     }
 
+    @Override
+    public int updateUserDetails(int userId, UpdateUserDetailsDTO userDetailsDTO) {
+        Users users = userRepo.findById(userId)
+                .orElseThrow(() -> new RuntimeException("user not found"));
+
+        users.setUserName(userDetailsDTO.getUserName());
+        users.setEmail(userDetailsDTO.getEmail());
+        userRepo.save(users);
+        return users.getUserId();
+    }
+
 
     @Override
     public String updateActiveState(int userId, boolean status) {
@@ -214,6 +226,7 @@ public class UserServiceIMPL implements UserSevice {
     @Override
     public boolean deleteUser(int userId) {
         if (userRepo.existsById(userId)) {
+            deleteUserPhoto(userId);
             userRepo.deleteById(userId);
         }else {
             throw new PropertyNotFoundException("Not found user for this id");
@@ -229,4 +242,6 @@ public class UserServiceIMPL implements UserSevice {
         }
         return true;
     }
+
+
 }
