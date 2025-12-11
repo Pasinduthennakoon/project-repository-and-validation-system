@@ -1,15 +1,25 @@
-import React from "react";
+import React, { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 
 export default function DeleteAccountModal({ visible, onClose }) {
   const { deleteAccount } = useAuth();
+  const [loading, setLoading] = useState(false);
 
   if (!visible) return null;
 
-  const handleDelete = () => {
-    deleteAccount();
-    alert("Account Deleted!");
-    window.location.href = "/";
+  const handleDelete = async() => {
+    setLoading(true);
+    
+    const result = await deleteAccount();
+    setLoading(false);
+
+    if (result.ok) {
+      alert(result.message || "Account deleted successfully.");
+      window.location.href = "/"; 
+    }else{
+      alert(`Delete failed: ${result.message}`);
+      onClose();
+    }
   };
 
   return (
