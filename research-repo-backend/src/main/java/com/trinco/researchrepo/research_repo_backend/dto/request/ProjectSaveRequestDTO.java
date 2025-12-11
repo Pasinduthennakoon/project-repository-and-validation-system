@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @AllArgsConstructor
@@ -16,7 +17,7 @@ public class ProjectSaveRequestDTO {
     private String pdfLink;
     private String githubLink;
     private String department;
-    private String createdAt;
+    private LocalDate createdAt;
     private List<LanguageUsageDTO> languageUsed;
     private int uploaderId;
     private int supervisorId;
