@@ -18,6 +18,7 @@ public class PendingProjectSaveRequestDTO {
     private String department;
     private String regNo;
     private String batch;
+    private int uploaderId;
     private int supervisorId;
-    private String createdAt;
+    private LocalDate createdAt;
 }
