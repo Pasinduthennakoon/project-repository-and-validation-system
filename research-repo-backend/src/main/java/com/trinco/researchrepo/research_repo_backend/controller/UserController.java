@@ -2,6 +2,7 @@ package com.trinco.researchrepo.research_repo_backend.controller;
 
 import com.trinco.researchrepo.research_repo_backend.dto.request.LoginRequestDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.request.PendingUserSaveRequestDTO;
+import com.trinco.researchrepo.research_repo_backend.dto.request.UpdateUserDetailsDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.response.LoginResponseDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.response.UploadProjectUsersResponseDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.response.UserManagementResponseDTO;
@@ -114,7 +115,7 @@ public class UserController {
                 HttpStatus.OK
         );
     }
-
+//get users for user management(supervisor)
     @GetMapping(
             path = {"/user_management"},
             params = {"role"}
@@ -171,6 +172,23 @@ public class UserController {
 
         return new ResponseEntity<StandardResponse>(
                 new StandardResponse(201, "user photo successfully deleted", deletedPhoto),
+                HttpStatus.OK
+        );
+    }
+//update user details(my account)
+    @PutMapping(
+            path = {"/update"},
+            params = {"userId"}
+    )
+    public ResponseEntity<StandardResponse> updateUser(
+            @RequestParam(value = "userId") int userId,
+            @RequestBody UpdateUserDetailsDTO userDetailsDTO
+    ){
+        System.out.println(userId);
+        int user = userSevice.updateUserDetails(userId, userDetailsDTO);
+
+        return new ResponseEntity<StandardResponse>(
+                new StandardResponse(200, "user details updated", user),
                 HttpStatus.OK
         );
     }
