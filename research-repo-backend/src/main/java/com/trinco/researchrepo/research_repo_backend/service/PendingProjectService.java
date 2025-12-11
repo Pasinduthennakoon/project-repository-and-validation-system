@@ -12,7 +12,7 @@ import java.util.Optional;
 public interface PendingProjectService {
     String addPendingProject(PendingProjectSaveRequestDTO pendingProjectSaveRequestDTO);
 
-    List<PendingProjectApprovelResponseDTO> getPendingProjects();
+    List<PendingProjectApprovelResponseDTO> getPendingProjects(int supervisorId);
 
     String approveProject(int pendingId);
 
