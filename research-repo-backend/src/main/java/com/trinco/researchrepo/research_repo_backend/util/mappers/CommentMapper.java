@@ -13,7 +13,8 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface CommentMapper {
 
-    @Mapping(source = "supervisor", target = "supervisor.userId") // Maps DTO.supervisor (int) to Entity.supervisor.userId (int)
+//    @Mapping(source = "supervisor", target = "supervisor.userId") // Maps DTO.supervisor (int) to Entity.supervisor.userId (int)
+    @Mapping(target = "supervisor", ignore = true)
     @Mapping(source = "project", target = "project.projectId")   // Maps DTO.project (int) to Entity.project.projectId (int)
     Comments RequestDtoToEntity (CommentSaveRequestDTO commentSaveRequestDTO);
 
