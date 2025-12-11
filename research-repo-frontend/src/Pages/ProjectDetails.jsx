@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import img from "../assets/img/cover_page.jpg";
 import Github from "../components/Common/Github";
@@ -6,15 +6,56 @@ import Document from "../components/Common/Document";
 import StudentCard from "../components/cards/StudentCard";
 import SupervisorCard from "../components/cards/SupervisorCard";
 import { useParams } from "react-router-dom";
-import { sampleProjects } from "../data/data";
-import { sampleComments } from "../data/sampleComments";
 import CommentCard from "../components/cards/CommentCard";
 
 const ProjectPage = () => {
   const { id } = useParams();
-  const project = sampleProjects.find((p) => p.id === parseInt(id));
+  // 1. State to store the fetched data
+    const [projectData, setProjectData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-  if (!project) return <p className="p-4 text-gray-500">Project not found.</p>;
+  // 2. useEffect to fetch data when the component mounts or 'id' changes
+    useEffect(() => {
+        const fetchProject = async () => {
+            const API_URL = `/api/v1/project/${id}/details`; // Adjust base URL if needed
+
+            try {
+                const response = await fetch(API_URL);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                
+                // Assuming your backend returns StandardResponse<ProjectPageDataResponseDTO>
+                const result = await response.json(); 
+                
+                if (result.code !== 200) {
+                    // Handle case where API response is 404/500 but HTTP status is 200
+                    throw new Error(result.message || "Failed to retrieve project data.");
+                }
+
+                // 3. Update state with the project details and comments
+                setProjectData(result.data); // result.data contains ProjectPageDataResponseDTO
+                
+            } catch (err) {
+                console.error("Fetch error:", err);
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProject();
+    }, [id]); // Re-run effect if 'id' changes
+
+    // 4. Handle Loading and Error States
+    if (loading) return <p className="p-4 text-gray-500">Loading project details...</p>;
+    if (error || !projectData) return <p className="p-4 text-red-500">Error: {error || "Project not found."}</p>;
+    
+    // Destructure data for cleaner rendering
+    const project = projectData.details;
+    const comments = projectData.comments;
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10">
@@ -23,8 +64,8 @@ const ProjectPage = () => {
 
       {/* Repo Info */}
       <p className="text-gray-600 mt-2 mb-2">
-        Created: {project.created} &nbsp; | &nbsp;&nbsp;&nbsp; Watchers:{" "}
-        {project.watchers} &nbsp; | &nbsp;&nbsp;&nbsp; Stars: {project.stars}
+        Created: {project.createdAt} &nbsp; | &nbsp;&nbsp;&nbsp; Watches:{" "}
+        {project.watches} &nbsp; | &nbsp;&nbsp;&nbsp; Stars: {project.stars}
       </p>
       <hr className="border-black mb-6" />
 
@@ -40,7 +81,7 @@ const ProjectPage = () => {
         {/* Description */}
         <div className="mt-6">
           <h2 className="text-lg font-semibold text-gray-800">Description</h2>
-          <p className="mt-2 text-gray-700">{project.abstract}</p>
+          <p className="mt-2 text-gray-700">{project.abstract_}</p>
         </div>
 
         <div className="flex  h-[200px] mt-6 p-6 pl-0 pr-0">
@@ -70,15 +111,13 @@ const ProjectPage = () => {
           </Link>
         </div>
 
-        {/* Team & Supervisors */}
+        Team & Supervisors
         <div className="mt-8 grid md:grid-cols-3 gap-2">
           {/* Team */}
           <div>
             <h2 className="text-lg font-semibold text-gray-800">Student</h2>
             <ul className="mt-3 space-y-2 text-gray-700">
-              {project.students.map((s, idx) => (
-                <StudentCard key={idx} student={s} />
-              ))}
+                <StudentCard  student={project.students} />
             </ul>
           </div>
 
@@ -86,9 +125,7 @@ const ProjectPage = () => {
           <div>
             <h2 className="text-lg font-semibold text-gray-800">Supervisor</h2>
             <ul className="mt-3 space-y-2 text-gray-700">
-              {project.supervisors.map((sup, idx) => (
-                <SupervisorCard key={idx} supervisor={sup} />
-              ))}
+                <SupervisorCard  supervisor={project.supervisors} />
             </ul>
           </div>
         </div>
@@ -97,7 +134,7 @@ const ProjectPage = () => {
         <div className="mt-8">
           <h2 className="text-lg font-semibold text-gray-800">Tags</h2>
           <div className="flex gap-4 mt-2">
-            {project.tags.map((tag, idx) => (
+            {project.tags && project.tags.map((tag, idx) => (
               <span
                 key={idx}
                 className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold"
@@ -112,13 +149,13 @@ const ProjectPage = () => {
         <div className="mt-8">
           <h2 className="text-lg font-semibold text-gray-800">Languages</h2>
           <div className="flex gap-4 mt-2">
-            {project.languages.map((lang, idx) => (
+            {project.languagesUsed && project.languagesUsed.map((lang, idx) => (
               <div
                 key={idx}
                 className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold"
               >
                 <span>{lang.name}</span>
-                <span className="text-gray-500 ml-2">{lang.percent}</span>
+                <span className="text-gray-500 ml-2">{lang.percent} % </span>
               </div>
             ))}
           </div>
@@ -139,7 +176,7 @@ const ProjectPage = () => {
       <div className="mt-10">
         <h2 className="text-lg font-semibold text-gray-800 mb-4">Comments</h2>
         <div className="grid gap-4">
-          {sampleComments.map((comment, idx) => (
+          {comments.map((comment, idx) => (
             <CommentCard key={idx} comment={comment} />
           ))}
         </div>
