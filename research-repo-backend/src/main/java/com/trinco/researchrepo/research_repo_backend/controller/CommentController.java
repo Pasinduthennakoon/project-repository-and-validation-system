@@ -5,9 +5,11 @@ import com.trinco.researchrepo.research_repo_backend.dto.response.ProjectReviewR
 import com.trinco.researchrepo.research_repo_backend.service.CommentService;
 import com.trinco.researchrepo.research_repo_backend.service.ProjectService;
 import com.trinco.researchrepo.research_repo_backend.util.StandardResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,11 +27,15 @@ public class CommentController {
 
 //add comment(supervisor)
     @PostMapping(
-            path = {"/add_comment"}
+            path = {"/add_comment"},
+            params = "supervisorId"
     )
-    public ResponseEntity<StandardResponse> addComment(@RequestBody CommentSaveRequestDTO commentSaveRequestDTO){
+    public ResponseEntity<StandardResponse> addComment(
+            @RequestBody CommentSaveRequestDTO commentSaveRequestDTO,
+            @RequestParam(value = "supervisorId") int supervisorId
+    ){
 
-        String projectId = commentService.addComment(commentSaveRequestDTO);
+        String projectId = commentService.addComment(commentSaveRequestDTO, supervisorId);
 
         return new ResponseEntity<StandardResponse>(
                 new StandardResponse(201, "Add Comment Successfully",projectId),
@@ -39,10 +45,13 @@ public class CommentController {
 
 //review projects(supervisor review)
     @GetMapping(
-            path = {"/view_projects"}
+            path = {"/view_projects"},
+            params = {"supervisorId"}
     )
-    public ResponseEntity<StandardResponse> viewProjectForReview(){
-        List<ProjectReviewResponseDTO> projectReviewResponseDTOS = projectService.viewProjectForReview();
+    public ResponseEntity<StandardResponse> viewProjectForReview(
+            @RequestParam(value = "supervisorId") int supervisorId
+    ){
+        List<ProjectReviewResponseDTO> projectReviewResponseDTOS = projectService.viewProjectForReview(supervisorId);
 
         return new ResponseEntity<StandardResponse>(
                 new StandardResponse(201, "success", projectReviewResponseDTOS),
