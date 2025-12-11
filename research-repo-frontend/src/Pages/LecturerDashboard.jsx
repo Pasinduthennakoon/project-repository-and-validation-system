@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
 import ProjectReviewCard from "../components/Lecturer/ProjectReviewCard";
+import projectService from "../services/projectService";
 
 const LecturerDashboard = () => {
+  const { user } = useAuth();
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -11,30 +14,29 @@ const LecturerDashboard = () => {
   // Fetches projects awaiting review from the backend
   useEffect(() => {
     const fetchProjects = async () => {
-      setLoading(true);
-      setError(null);
-      const API_URL = "/api/v1/project/comment/view_projects"; // Adjust path if needed
+            setLoading(true);
+            setError(null);
+            
+            try {
+                // 🎯 USE THE SECURE SERVICE METHOD
+                const result = await projectService.fetchProjectsForReview(user.userId); 
 
-      try {
-        const res = await fetch(API_URL);
-        if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+                if (!result.ok) {
+                    // result.message will contain the error from the service catch block
+                    throw new Error(result.message); 
+                }
 
-        const responseData = await res.json();
+                setProjects(result.data); // Set state with the successfully fetched data
 
-        if (responseData.code !== 201) {
-          throw new Error(responseData.message || "Failed to fetch projects.");
-        }
+            } catch (err) {
+                console.error("Fetch error:", err);
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-        setProjects(responseData.data); // Set state with List<ProjectReviewResponseDTO>
-      } catch (err) {
-        console.error("Fetch error:", err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProjects();
+        fetchProjects();
   }, []);
 
   if (loading)
@@ -45,24 +47,27 @@ const LecturerDashboard = () => {
   // Handle submit review
   const handleSubmitReview = async (projectId, comment, rating) => {
     try {
-      // TODO: Make API call to submit review
-      // const response = await fetch(`/api/v1/project/comment/${projectId}`, {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ comment, rating })
-      // });
-      
+      const data = {
+        comment: comment,
+        ratingStars: rating,
+        project: projectId,
+      };
+
+      const result = await projectService.submitReview(user.userId, data);
+
+      if (!result.ok) {
+        throw new Error(result.message);
+      }
+
       // Update project status in state
-      setProjects((prev) =>
-        prev.map((p) =>
-          p.projectId === projectId ? { ...p, status: "REVIEWED", comment, rating } : p
-        )
+      setProjects((prev) => prev.filter((p) => p.projectId !== projectId));
+      alert(
+        result.message ||
+          `Review submitted successfully for Project ID: ${projectId}`
       );
-      
-      alert("Review submitted successfully!");
     } catch (err) {
       console.error("Error submitting review:", err);
-      alert("Failed to submit review. Please try again.");
+      alert(`Failed to submit review. ${err.message}`);
     }
   };
 
@@ -75,7 +80,9 @@ const LecturerDashboard = () => {
   });
 
   // Unique departments and batches for dropdowns - use fetched projects instead of sampleProjects
-  const departments = [...new Set(projects.map((p) => p.department).filter(Boolean))];
+  const departments = [
+    ...new Set(projects.map((p) => p.department).filter(Boolean)),
+  ];
   const batches = [...new Set(projects.map((p) => p.batch).filter(Boolean))];
 
   return (
