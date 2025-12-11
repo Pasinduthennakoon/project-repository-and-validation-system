@@ -28,7 +28,7 @@ public class PendingProjectController {
 
 //upload project(student)
     @PostMapping(
-            value = "save/pending_project",
+            value = "save",
             consumes = {"multipart/form-data"}
     )
 
@@ -69,20 +69,23 @@ public class PendingProjectController {
 
 //get pending projects(supervisor to approve projects)
     @GetMapping(
-            path = {"/view"}
+            path = {"/view"},
+            params = {"supervisorId"}
     )
-    public ResponseEntity<StandardResponse> getPendingProjects(){
-        List<PendingProjectApprovelResponseDTO> pendingProjectApprovelResponseDTOS = pendingProjectService.getPendingProjects();
+    public ResponseEntity<StandardResponse> getPendingProjects(
+            @RequestParam(value = "supervisorId") int supervisorId
+    ){
+        List<PendingProjectApprovelResponseDTO> pendingProjectApprovelResponseDTOS = pendingProjectService.getPendingProjects(supervisorId);
 
         return new ResponseEntity<StandardResponse>(
-                new StandardResponse(201, "success", pendingProjectApprovelResponseDTOS),
+                new StandardResponse(200, "success", pendingProjectApprovelResponseDTOS),
                 HttpStatus.OK
         );
     }
 
-    //approve project(supervisor)
+    //approve pending project(supervisor)
     @PostMapping(
-            path = {"/approve_project"},
+            path = {"/approve"},
             params = {"pendingId"}
     )
     public ResponseEntity<StandardResponse>approveProject(
@@ -96,9 +99,9 @@ public class PendingProjectController {
         );
     }
 
-    //reject project(supervisor)
+    //reject pending project(supervisor)
     @DeleteMapping(
-            path = {"/reject_pending_project"},
+            path = {"/reject"},
             params = {"pendingProjectId"}
     )
     public ResponseEntity<StandardResponse>rejectPendingProject(
@@ -107,7 +110,7 @@ public class PendingProjectController {
         boolean rejectedProject = pendingProjectService.rejectPendingProject(pendingProjectId);
 
         return new ResponseEntity<StandardResponse>(
-                new StandardResponse(201, "success", rejectedProject),
+                new StandardResponse(200, "success", rejectedProject),
                 HttpStatus.OK
         );
     }
