@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,6 +53,7 @@ public class PendingProjectServiceIMPL implements PendingProjectService {
 
         Pending_Projects pendingProjects = pendingProjectMapper.RequestDtoToEntity(pendingProjectSaveRequestDTO);
         if (!pendingProjectRepo.existsById(pendingProjects.getPendingProjectId())){
+            pendingProjects.setCreatedAt(String.valueOf(LocalDate.now()));
             pendingProjectRepo.save(pendingProjects);
             return "project added";
         }else {
@@ -59,8 +62,8 @@ public class PendingProjectServiceIMPL implements PendingProjectService {
     }
 
     @Override
-    public List<PendingProjectApprovelResponseDTO> getPendingProjects() {
-        List<Pending_Projects> pendingProjects = pendingProjectRepo.findAll();
+    public List<PendingProjectApprovelResponseDTO> getPendingProjects(int supervisorId) {
+        List<Pending_Projects> pendingProjects = pendingProjectRepo.findBySupervisorId(supervisorId);
         List<PendingProjectApprovelResponseDTO> pendingProjectApprovelResponseDTOS = pendingProjectMapper.ResponsePendingProjectEntityListToDtoList(pendingProjects);
 
         return pendingProjectApprovelResponseDTOS;
@@ -72,14 +75,9 @@ public class PendingProjectServiceIMPL implements PendingProjectService {
         Pending_Projects pending_projects = pendingProjectRepo.findById(pendingId)
                 .orElseThrow(() -> new RuntimeException("pending project not found"));
 
-        String regNo = pending_projects.getRegNo();
-        Students student = studentRepo.findByRegNo(regNo);
-        Optional<Users> uploader = userRepo.findById(student.getUserId());
-
         PendingProjectSaveRequestDTO pendingProjectSaveRequestDTO = projectMapper.EntityToDtoToAddProject(pending_projects);
         ProjectSaveRequestDTO projectSaveRequestDTO = projectMapper.PendingProjectsToProjects(pendingProjectSaveRequestDTO);
         Projects projects = projectMapper.RequestDtoToEntity(projectSaveRequestDTO);
-        projects.setUploader(uploader.get());
 
 
         File pdfFile = new File(pending_projects.getTempPdfPath());
@@ -112,6 +110,9 @@ public class PendingProjectServiceIMPL implements PendingProjectService {
     @Override
     public boolean rejectPendingProject(int pendingProjectId) {
         if(pendingProjectRepo.existsById(pendingProjectId)) {
+            String pdfPath = pendingProjectRepo.gettempPdfPath(pendingProjectId);
+            File file = new File(pdfPath);
+            if(file.exists()) file.delete();
             pendingProjectRepo.deleteById(pendingProjectId);
         }else {
             throw new PropertyNotFoundException("Not found project for this id");
