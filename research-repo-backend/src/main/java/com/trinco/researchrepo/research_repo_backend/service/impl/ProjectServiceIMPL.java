@@ -1,27 +1,20 @@
 package com.trinco.researchrepo.research_repo_backend.service.impl;
 
 import com.trinco.researchrepo.research_repo_backend.dto.LanguageUsageDTO;
-import com.trinco.researchrepo.research_repo_backend.dto.request.PendingProjectSaveRequestDTO;
-import com.trinco.researchrepo.research_repo_backend.dto.request.ProjectSaveRequestDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.response.*;
 import com.trinco.researchrepo.research_repo_backend.entity.*;
 import com.trinco.researchrepo.research_repo_backend.repo.*;
-import com.trinco.researchrepo.research_repo_backend.service.GoogleDriveService;
 import com.trinco.researchrepo.research_repo_backend.service.ProjectService;
-import com.trinco.researchrepo.research_repo_backend.service.StudentService;
 import com.trinco.researchrepo.research_repo_backend.util.mappers.CommentMapper;
 import com.trinco.researchrepo.research_repo_backend.util.mappers.ProjectDetailsPageMapper;
 import com.trinco.researchrepo.research_repo_backend.util.mappers.ProjectMapper;
+import jakarta.el.PropertyNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class ProjectServiceIMPL implements ProjectService {
@@ -37,6 +30,12 @@ public class ProjectServiceIMPL implements ProjectService {
 
     @Autowired
     private CommentMapper commentMapper;
+
+    @Autowired
+    private ProjectReviewRepo projectReviewRepo;
+
+    @Autowired
+    private CommentRepo commentRepo;
 
 
     @Override
@@ -89,8 +88,8 @@ public class ProjectServiceIMPL implements ProjectService {
     }
 
     @Override
-    public List<ProjectReviewResponseDTO> viewProjectForReview() {
-        List<Projects> projects = projectRepo.findProjectsForReview();
+    public List<ProjectReviewResponseDTO> viewProjectForReview(int supervisorId) {
+        List<Projects> projects = projectRepo.findProjectsForReview(supervisorId);
         List<ProjectReviewResponseDTO> projectReviewResponseDTOS = commentMapper.projectReviewEntityListToResponseDTOList(projects);
 
         return projectReviewResponseDTOS;
