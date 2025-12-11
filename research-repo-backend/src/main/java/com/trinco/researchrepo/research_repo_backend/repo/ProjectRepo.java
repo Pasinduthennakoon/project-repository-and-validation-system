@@ -40,9 +40,14 @@ public interface ProjectRepo extends JpaRepository<Projects, Integer> {
 
     @Query("""
         SELECT p FROM Projects p
-        JOIN FETCH p.uploader u
+            JOIN FETCH p.uploader u
+            WHERE p.projectId NOT IN (
+                SELECT c.project.projectId
+                FROM Comments c
+                WHERE c.supervisor.userId = :supervisorId
+            )
     """)
-    List<Projects> findProjectsForReview();
+    List<Projects> findProjectsForReview(@Param("supervisorId") int supervisorId);
 
     @Query("SELECT new com.trinco.researchrepo.research_repo_backend.dto.response.ProjectsByUserResponseDTO(p.projectId, p.title) " +
             "FROM Projects p " +
