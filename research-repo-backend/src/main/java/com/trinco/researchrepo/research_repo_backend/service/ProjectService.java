@@ -1,7 +1,6 @@
 package com.trinco.researchrepo.research_repo_backend.service;
 
 import com.trinco.researchrepo.research_repo_backend.dto.LanguageUsageDTO;
-import com.trinco.researchrepo.research_repo_backend.dto.request.ProjectSaveRequestDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.response.ProjectPageDataResponseDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.response.ProjectReviewResponseDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.response.ProjectsBorwsResponseDTO;
@@ -20,7 +19,7 @@ public interface ProjectService {
 
     List<ProjectsBorwsResponseDTO> getAllProjects();
 
-    List<ProjectReviewResponseDTO> viewProjectForReview();
+    List<ProjectReviewResponseDTO> viewProjectForReview(int supervisorId);
 
     List<ProjectsByUserResponseDTO> getMyProjects(int userId);
 }
