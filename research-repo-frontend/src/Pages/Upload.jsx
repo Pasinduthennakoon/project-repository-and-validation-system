@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
 import formatFile from "../assets/docs/Documentation_Format.docx";
+import projectService from "../services/projectService";
 
 const Upload = () => {
   const [form, setForm] = useState({
@@ -13,6 +15,7 @@ const Upload = () => {
     file: null,
   });
 
+  const { user } = useAuth();
   const [users, setUsers] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [filteredSupervisors, setFilteredSupervisors] = useState([]);
@@ -92,34 +95,61 @@ const Upload = () => {
   };
 
   // Handle form submit
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const newProject = {
-      ...form,
-      id: Date.now(),
-      status: "WAITING_SUPERVISOR_APPROVAL",
-      dateUploaded: new Date().toISOString(),
+    const selectedSupervisor = filteredSupervisors.find(
+      (sup) => sup.userName === form.supervisorName
+    );
+
+    if(!selectedSupervisor || !form.file) {
+      alert("❌ Please complete all required fields.");
+      return;
+    }
+
+    const supervisorId = selectedSupervisor.userId;
+
+    // --- 2. Prepare the DTO data object ---
+    const pendingProjectData = {
+      title: form.title,
+      abstract_: form.description, 
+      githubLink: form.githubLink,
+      department: form.department,
+      regNo: form.studentRegNo,
+      batch: form.batch,
+      uploaderId: user.userId, // Assuming user context provides userId
+      supervisorId: supervisorId,
     };
 
-    const uploads = JSON.parse(localStorage.getItem("pending_uploads") || "[]");
-    uploads.push(newProject);
-    localStorage.setItem("pending_uploads", JSON.stringify(uploads));
+    // --- 3. Create FormData object ---
+    const formData = new FormData();
+    formData.append(
+      "data",
+      new Blob([JSON.stringify(pendingProjectData)], { type: "application/json" })
+    );
+    formData.append("file", form.file);
 
-    alert("✅ Project submitted! Waiting for supervisor approval.");
+    // --- 4. Call the Service ---
+    try {
+        const result = await projectService.addNewProject(formData);
 
-    // Reset form
-    setForm({
-      title: "",
-      description: "",
-      department: "",
-      batch: "",
-      studentRegNo: "",
-      supervisorName: "",
-      githubLink: "",
-      file: null,
-    });
-    setFilteredSupervisors([]);
+        if (result.ok) {
+            alert(`✅ Project submitted successfully! ID: ${result.data}. Waiting for supervisor approval.`);
+            // Reset form on success
+            setForm({
+                title: "", description: "", department: "", batch: "",
+                studentRegNo: "", supervisorName: "", githubLink: "", file: null,
+            });
+            setFilteredSupervisors([]);
+        } else {
+            // Handle error message returned from the service
+            throw new Error(result.message);
+        }
+
+    } catch (error) {
+        console.error("Upload failed:", error);
+        alert(`❌ Failed to submit project: ${error.message}`);
+    }
   };
 
   return (
