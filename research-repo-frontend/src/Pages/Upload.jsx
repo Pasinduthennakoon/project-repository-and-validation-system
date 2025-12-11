@@ -17,22 +17,63 @@ const Upload = () => {
   const [departments, setDepartments] = useState([]);
   const [filteredSupervisors, setFilteredSupervisors] = useState([]);
 
-  // Load users.json
-  useEffect(() => {
-    fetch("/users.json")
-      .then((res) => res.json())
-      .then((data) => {
-        setUsers(data);
+  const [loadingUsers, setLoadingUsers] = useState(true);
+  const [userFetchError, setUserFetchError] = useState(null);
 
-        // Extract unique departments from students only
+  // src/components/pages/Upload.jsx (MODIFIED useEffect)
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const API_URL = "/api/v1/user/upload_uses"; // Adjust port/path if needed
+      setLoadingUsers(true);
+      setUserFetchError(null);
+
+      try {
+        const res = await fetch(API_URL);
+
+        if (!res.ok) {
+          throw new Error(`HTTP error! Status: ${res.status}`);
+        }
+
+        const responseData = await res.json();
+
+        // Check the StandardResponse status code (using 201 as defined in your controller)
+        if (responseData.code !== 201) {
+          throw new Error(
+            responseData.message || "Failed to retrieve user data."
+          );
+        }
+
+        // The list of DTOs is in responseData.data
+        const data = responseData.data;
+
+        setUsers(data); // Set the full list of DTOs
+
+        // Extract unique departments from students only (Logic remains the same, but uses API data)
         const deptSet = new Set(
           data
-            .filter((u) => u.role === "STUDENT" && u.department && u.department !== "")
+            .filter(
+              // Check if role is 'STUDENT' and department exists
+              (u) => u.role === "STUDENT" && u.department && u.department !== ""
+            )
             .map((u) => u.department)
         );
-        setDepartments([...deptSet]);
-      })
-      .catch((err) => console.error("❌ Failed to load users.json:", err));
+
+        // You might need to add the exclusion logic for "Administration" here
+        // if you didn't move it to the backend service layer yet.
+        // Example if filtering on frontend:
+        // setDepartments([...deptSet].filter(d => d !== "Administration"));
+
+        setDepartments([...deptSet]); // Set the extracted unique departments
+      } catch (err) {
+        console.error("❌ Failed to load user data from API:", err);
+        setUserFetchError(err.message);
+      } finally {
+        setLoadingUsers(false);
+      }
+    };
+
+    fetchUsers();
   }, []);
 
   // Handle input and dropdown changes
@@ -102,7 +143,14 @@ const Upload = () => {
           onChange={handleChange}
           required
         >
-          <option value="">Select Department</option>
+          <option value="">
+            {loadingUsers
+              ? "Loading Users..."
+              : userFetchError
+              ? "Error loading departments"
+              : "Select Department"}
+          </option>
+
           {departments.map((dept) => (
             <option key={dept} value={dept}>
               {dept}
@@ -117,14 +165,18 @@ const Upload = () => {
           value={form.supervisorName}
           onChange={handleChange}
           required
+          // ⛔ Disables the dropdown if no department is selected
           disabled={!form.department}
         >
           <option value="">
+            {/* Dynamic placeholder text */}
             {form.department ? "Select Supervisor" : "Select Department First"}
           </option>
+
+          {/* 🗺️ Maps over the filteredSupervisors array */}
           {filteredSupervisors.map((sup) => (
-            <option key={sup.id} value={sup.name}>
-              {sup.name}
+            <option key={sup.userId} value={sup.userName}>
+              {sup.userName}
             </option>
           ))}
         </select>
