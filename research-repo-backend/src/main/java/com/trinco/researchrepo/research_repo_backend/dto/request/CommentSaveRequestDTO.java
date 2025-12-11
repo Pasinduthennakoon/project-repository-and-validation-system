@@ -9,10 +9,8 @@ import lombok.NoArgsConstructor;
 @Data
 public class CommentSaveRequestDTO {
 
-    private String comment;
-    private String createdAt; // Column in Projects table
-    private int ratingStars;
-    private int supervisor; // Column in Projects table
+    private String comment; // Column in Projects table
+    private int ratingStars; // Column in Projects table
     private int project;
 
 }
