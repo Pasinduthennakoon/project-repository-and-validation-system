@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -59,9 +60,9 @@ public class Projects {
     @Column(name = "tags", columnDefinition = "json")
     private List<String> tags;
 
-    @OneToOne(mappedBy = "project", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private Reviews reviews;
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comments> commentedProjects;
 }
