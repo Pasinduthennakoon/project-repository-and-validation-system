@@ -9,10 +9,7 @@ const ProjectReviewCard = ({ project, onSubmitReview }) => {
   const studentName = project.studentName;
 
   const handleSubmitReview = () => {
-    if (!comment || rating === 0) {
-      alert("Please provide both rating and comment before submitting.");
-      return;
-    }
+    
     onSubmitReview(project.projectId, comment, rating);
     setComment("");
     setRating(0);
