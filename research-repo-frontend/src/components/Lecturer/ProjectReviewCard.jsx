@@ -1,21 +1,19 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Rate } from "antd";
 
 const ProjectReviewCard = ({ project, onSubmitReview }) => {
   const [comment, setComment] = useState("");
   const [rating, setRating] = useState(0);
-  const navigate = useNavigate();
 
-  const student = project.students?.[0];
+  const studentName = project.studentName;
 
   const handleSubmitReview = () => {
     if (!comment || rating === 0) {
       alert("Please provide both rating and comment before submitting.");
       return;
     }
-    onSubmitReview(project.id, comment, rating);
-    alert("Review submitted successfully!");
+    onSubmitReview(project.projectId, comment, rating);
     setComment("");
     setRating(0);
   };
@@ -27,7 +25,7 @@ const ProjectReviewCard = ({ project, onSubmitReview }) => {
           {project.title}
         </h2>
         <Link
-          to={`/projects/${project.id}`} // match your route
+          to={`/projects/${project.projectId}`} // match your route
           className="mt-4 inline-block text-blue-600 hover:underline"
         >
           View Project →
@@ -37,24 +35,28 @@ const ProjectReviewCard = ({ project, onSubmitReview }) => {
 
       <div className="text-sm text-gray-600 mb-3">
         <p>
-          <strong>Student:</strong> {student?.name} |{" "}
+          <strong>Student:</strong> {studentName} |{" "}
           <strong>Department:</strong> {project.department} |{" "}
           <strong>Batch:</strong> {project.batch}
         </p>
         <p>
-          <strong>Created:</strong> {project.created}
+          <strong>Created:</strong> {project.createdAt}
         </p>
       </div>
 
       <div className="flex flex-wrap gap-2 mb-4">
-        {project.tags.map((tag, i) => (
-          <span
-            key={i}
-            className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs"
-          >
-            #{tag}
-          </span>
-        ))}
+        {project.tags && project.tags.length > 0 ? (
+          project.tags.map((tag, i) => (
+            <span
+              key={i}
+              className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs"
+            >
+              #{tag}
+            </span>
+          ))
+        ) : (
+          <span className="text-gray-400 text-sm">No tags</span>
+        )}
       </div>
 
       <div className="space-y-2">
