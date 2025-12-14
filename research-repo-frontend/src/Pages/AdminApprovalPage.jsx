@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
+import pendingUserService from "../services/pendingUserService";
 
 const AdminApprovalPage = () => {
   const [requests, setRequests] = useState([]);
@@ -9,20 +10,33 @@ const AdminApprovalPage = () => {
   const [departmentFilter, setDepartmentFilter] = useState("");
 
   useEffect(() => {
-    fetch("/pendingSignups.json")
-      .then((res) => res.json())
-      .then((data) => {
-        setRequests(data);
+    setLoading(true);
+    const apiRole = roleFilter === "All Roles" ? "" : roleFilter;
+
+    const fetchPendingUsers = async () => {
+      try {
+        const result = await pendingUserService.fetchPendingUsers();
+
+        if (!result.ok) {
+          throw new Error(result.message);
+        }
+
+        setRequests(result.data || []); // Set state with fetched data
         setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Failed to fetch pending signups:", err);
+      } catch (err) {
+        console.error("Failed to fetch pending users:", err);
         setLoading(false);
-      });
+      }
+    };
+
+    fetchPendingUsers();
   }, []);
 
   // Get dynamic filter options
-  const roles = useMemo(() => [...new Set(requests.map((r) => r.role))], [requests]);
+  const roles = useMemo(
+    () => [...new Set(requests.map((r) => r.role))],
+    [requests]
+  );
   const departments = useMemo(
     () => [...new Set(requests.map((r) => r.department).filter(Boolean))],
     [requests]
@@ -32,7 +46,9 @@ const AdminApprovalPage = () => {
   const filteredRequests = useMemo(() => {
     return requests.filter((r) => {
       const matchesRole = roleFilter ? r.role === roleFilter : true;
-      const matchesDept = departmentFilter ? r.department === departmentFilter : true;
+      const matchesDept = departmentFilter
+        ? r.department === departmentFilter
+        : true;
       return matchesRole && matchesDept;
     });
   }, [requests, roleFilter, departmentFilter]);
@@ -62,7 +78,9 @@ const AdminApprovalPage = () => {
         >
           <option value="">All Roles</option>
           {roles.map((role) => (
-            <option key={role} value={role}>{role}</option>
+            <option key={role} value={role}>
+              {role}
+            </option>
           ))}
         </select>
 
@@ -73,7 +91,9 @@ const AdminApprovalPage = () => {
         >
           <option value="">All Departments</option>
           {departments.map((dept) => (
-            <option key={dept} value={dept}>{dept}</option>
+            <option key={dept} value={dept}>
+              {dept}
+            </option>
           ))}
         </select>
       </div>
@@ -95,7 +115,7 @@ const AdminApprovalPage = () => {
             <tbody>
               {filteredRequests.map((req) => (
                 <tr key={req.id} className="hover:bg-gray-50">
-                  <td className="py-2 px-4 border">{req.name}</td>
+                  <td className="py-2 px-4 border">{req.userName}</td>
                   <td className="py-2 px-4 border">{req.email}</td>
                   <td className="py-2 px-4 border">{req.role}</td>
                   <td className="py-2 px-4 border">{req.department}</td>
