@@ -70,6 +70,26 @@ const userService = {
             const errorMessage = error.response?.data?.message || "Failed to delete user.";
             return { ok: false, message: errorMessage };
         }
+    },
+
+    /**
+     * @param {string} role
+     * @return {Promise<{ok: boolean, data?: any, message?: string}>}
+     */
+    fetchUsers : async (role) => {
+        try {
+            // No need to send supervisorId; the backend extracts it from the JWT.
+            const response = await apiClient.get('/user/user_management', 
+                {params: {role}}); 
+
+            if (response.data.code === 201) {
+                return { ok: true, data: response.data.data };
+            }
+            throw new Error(response.data.message || 'Failed to fetch users.');
+        } catch (error) {
+            const message = error.response?.data?.message || 'Network error fetching users.';
+            return { ok: false, message: message };
+        }
     }
 
 };
