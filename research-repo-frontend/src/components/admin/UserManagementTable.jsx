@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import userService from "../../services/userService";
 
 const ALL_ROLES = ["All Roles", "ADMIN", "STUDENT", "SUPERVISOR"];
 
@@ -50,24 +51,21 @@ const UserManagementTable = () => {
     });
   }, [users, roleFilter, departmentFilter, batchSearch, regSearch]);
 
-  const handleDelete = (userId) => {
+  const handleDelete = async(userId) => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
 
-    fetch(`/api/v1/user/${userId}`, { method: "DELETE" })
-      .then((res) => res.json())
-      .then((payload) => {
-        // payload: StandardResponse {code, message, data}
-        if (payload.code === 200) {
-          setUsers((prev) => prev.filter((u) => u.userId !== userId));
-          alert("User deleted successfully");
-        } else {
-          alert("Delete failed: " + payload.message);
-        }
-      })
-      .catch((err) => {
-        console.error("Delete error", err);
-        alert("Failed to delete user");
-      });
+    try {
+      const result = await userService.deleteUser(userId);
+      if (!result.ok) {
+        throw new Error(result.message);
+      }
+
+      setUsers((prev) => prev.filter((u) => u.userId !== userId));
+      alert(result.message);
+    } catch (err) {
+      console.error("Delete error:", err);
+      alert(`Delete failed: ${err.message}`);
+    }
   };
 
   if (loading) return <p className="text-center py-8">Loading users...</p>;
