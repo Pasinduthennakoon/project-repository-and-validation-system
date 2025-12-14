@@ -53,14 +53,34 @@ const AdminApprovalPage = () => {
     });
   }, [requests, roleFilter, departmentFilter]);
 
-  const handleApprove = (id) => {
-    setRequests((prev) => prev.filter((r) => r.id !== id));
-    alert("Signup approved (mock)");
+  const handleApprove = async(pendingId) => {
+    try {
+      const result = await pendingUserService.approvePendingUser(pendingId);
+      if (!result.ok) {
+        throw new Error(result.message);
+      }
+
+      setRequests((prev) => prev.filter((u) => u.pendingUserId !== pendingId));
+      alert("Signup approved");
+    } catch (err) {
+      console.error("Approve error:", err);
+      alert(`Approve failed: ${err.message}`);
+    }
   };
 
-  const handleReject = (id) => {
-    setRequests((prev) => prev.filter((r) => r.id !== id));
-    alert("Signup rejected (mock)");
+  const handleReject = async(pendingId) => {
+    try {
+      const result = await pendingUserService.rejectPendingUser(pendingId);
+      if (!result.ok) {
+        throw new Error(result.message);
+      }
+
+      setRequests((prev) => prev.filter((u) => u.pendingUserId !== pendingId));
+      alert("Signup rejected");
+    } catch (err) {
+      console.error("Reject error:", err);
+      alert(`Reject failed: ${err.message}`);
+    }
   };
 
   if (loading) return <p>Loading pending requests...</p>;
@@ -121,13 +141,13 @@ const AdminApprovalPage = () => {
                   <td className="py-2 px-4 border">{req.department}</td>
                   <td className="py-2 px-4 border flex gap-2">
                     <button
-                      onClick={() => handleApprove(req.id)}
+                      onClick={() => handleApprove(req.pendingUserId)}
                       className="bg-green-500 text-white px-2 py-1 rounded"
                     >
                       Approve
                     </button>
                     <button
-                      onClick={() => handleReject(req.id)}
+                      onClick={() => handleReject(req.pendingUserId)}
                       className="bg-red-500 text-white px-2 py-1 rounded"
                     >
                       Reject
