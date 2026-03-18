@@ -2,73 +2,75 @@ import { useEffect, useState } from "react";
 
 function IdeaComparisonPage() {
   const [result, setResult] = useState(null);
-    const [departments, setDepartments] = useState([]);
-    const [loadingDepartments, setLoadingDepartments] = useState(true);
-    const [departmentError, setDepartmentError] = useState(null);
+  const [departments, setDepartments] = useState([]);
+  const [loadingDepartments, setLoadingDepartments] = useState(true);
+  const [departmentError, setDepartmentError] = useState(null);
 
   // ✅ Fetch departments from the Spring Boot API
-    useEffect(() => {
-        const fetchDepartments = async () => {
-            const API_URL = "/api/v1/user/get_user_departments"; // Adjust the base path if your controller has one
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      const API_URL = "/api/v1/user/get_user_departments"; // Adjust the base path if your controller has one
 
-            try {
-                const res = await fetch(API_URL);
+      try {
+        const res = await fetch(API_URL);
 
-                if (!res.ok) {
-                    throw new Error(`HTTP error! Status: ${res.status}`);
-                }
+        if (!res.ok) {
+          throw new Error(`HTTP error! Status: ${res.status}`);
+        }
 
-                const responseData = await res.json();
-                
-                // 1. Check the StandardResponse status code
-                if (responseData.code !== 201) { // Checking for 201 (as defined in your controller)
-                    throw new Error(responseData.message || "Failed to retrieve departments.");
-                }
+        const responseData = await res.json();
 
-                // 2. Set the departments list from the 'data' field
-                // responseData.data should contain List<String>
-                setDepartments(responseData.data); 
-                
-            } catch (err) {
-                console.error("Error fetching departments:", err);
-                setDepartmentError(err.message);
-            } finally {
-                setLoadingDepartments(false);
-            }
-        };
+        // 1. Check the StandardResponse status code
+        if (responseData.code !== 201) {
+          // Checking for 201 (as defined in your controller)
+          throw new Error(
+            responseData.message || "Failed to retrieve departments.",
+          );
+        }
 
-        fetchDepartments();
-    }, []); // Empty dependency array means it runs once on mount
+        // 2. Set the departments list from the 'data' field
+        // responseData.data should contain List<String>
+        setDepartments(responseData.data);
+      } catch (err) {
+        console.error("Error fetching departments:", err);
+        setDepartmentError(err.message);
+      } finally {
+        setLoadingDepartments(false);
+      }
+    };
 
-  const handleSubmit = (e) => {
+    fetchDepartments();
+  }, []); // Empty dependency array means it runs once on mount
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const formData = {
-      name: e.target.name.value,
-      email: e.target.email.value,
-      department: e.target.department.value,
-      batch: e.target.batch.value,
       title: e.target.title.value,
       abstract: e.target.abstract.value,
     };
 
-    // 🔹 Mock similarity for now
-    const mockSimilarity = Math.floor(Math.random() * 100);
-
-    if (mockSimilarity > 40) {
-      setResult({
-        status: "duplicate",
-        match_percentage: mockSimilarity,
-        matched_project: {
-          title: "AI GPA Analyzer",
-          batch: "2023",
-          department: "IT",
+    try {
+      const res = await fetch("http://localhost:8000/analyze", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
+        body: JSON.stringify(formData),
       });
-    } else {
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error("Failed to analyze idea");
+      }
+
+      setResult(data);
+    } catch (err) {
+      console.error(err);
       setResult({
-        status: "unique",
-        match_percentage: mockSimilarity,
+        status: "error",
+        message: err.message,
       });
     }
   };
@@ -84,29 +86,25 @@ function IdeaComparisonPage() {
           className="border p-2 w-full"
           required
         />
-        <input
-          name="email"
-          placeholder="Email"
-          className="border p-2 w-full"
-        />
+        <input name="email" placeholder="Email" className="border p-2 w-full" />
 
         {/* ✅ Department dropdown populated dynamically */}
-                <select name="department" className="border p-2 w-full" required>
-                    <option value="">
-                        {loadingDepartments 
-                            ? "Loading Departments..." 
-                            : departmentError 
-                            ? "Error loading departments"
-                            : "Select Department"}
-                    </option>
-                    
-                    {/* Render options only if departments array is populated */}
-                    {departments.map((dept, index) => (
-                        <option key={index} value={dept}>
-                            {dept}
-                        </option>
-                    ))}
-                </select>
+        <select name="department" className="border p-2 w-full" required>
+          <option value="">
+            {loadingDepartments
+              ? "Loading Departments..."
+              : departmentError
+                ? "Error loading departments"
+                : "Select Department"}
+          </option>
+
+          {/* Render options only if departments array is populated */}
+          {departments.map((dept, index) => (
+            <option key={index} value={dept}>
+              {dept}
+            </option>
+          ))}
+        </select>
 
         <input
           name="batch"
@@ -137,16 +135,22 @@ function IdeaComparisonPage() {
       {result && (
         <div className="mt-6 p-4 border rounded bg-gray-50">
           <h3 className="font-semibold">Result</h3>
+
           {result.status === "duplicate" ? (
-            <p className="text-red-600">
-              ⚠️ This idea matches {result.match_percentage}% with:
-              <br />
-              <strong>{result.matched_project.title}</strong> (
-              {result.matched_project.department}, Batch {result.matched_project.batch})
-            </p>
+            <div className="text-red-600">
+              ⚠️ Similarity: {result.match_percentage.toFixed(2)}%
+              <p className="mt-2 font-semibold">Top Matches:</p>
+              <ul>
+                {result.top_matches.map((m, i) => (
+                  <li key={i}>
+                    {m.title} ({(m.score * 100).toFixed(2)}%)
+                  </li>
+                ))}
+              </ul>
+            </div>
           ) : (
             <p className="text-green-600">
-              ✅ Your idea looks original! (Similarity: {result.match_percentage}%)
+              ✅ Unique Idea ({result.match_percentage.toFixed(2)}%)
             </p>
           )}
         </div>

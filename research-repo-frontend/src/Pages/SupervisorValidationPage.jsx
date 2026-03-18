@@ -3,7 +3,7 @@ import { useState } from "react";
 function SupervisorValidationPage() {
   const [result, setResult] = useState(null);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const formData = {
@@ -11,23 +11,27 @@ function SupervisorValidationPage() {
       abstract: e.target.abstract.value,
     };
 
-    // Mock similarity check (replace later with backend API call)
-    const mockSimilarity = Math.floor(Math.random() * 100);
-
-    if (mockSimilarity > 40) {
-      setResult({
-        status: "duplicate",
-        match_percentage: mockSimilarity,
-        matched_project: {
-          title: "Smart Research Repository System",
-          batch: "2023",
-          department: "Computer Science",
+    try {
+      const res = await fetch("http://localhost:8000/analyze", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
+        body: JSON.stringify(formData),
       });
-    } else {
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error("Failed to analyze idea");
+      }
+
+      setResult(data);
+    } catch (err) {
+      console.error(err);
       setResult({
-        status: "unique",
-        match_percentage: mockSimilarity,
+        status: "error",
+        message: err.message,
       });
     }
   };
@@ -49,7 +53,10 @@ function SupervisorValidationPage() {
           className="border p-2 w-full h-32 rounded"
           required
         />
-        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
+        <button
+          type="submit"
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+        >
           Compare Idea
         </button>
       </form>
@@ -57,16 +64,22 @@ function SupervisorValidationPage() {
       {result && (
         <div className="mt-6 p-4 border rounded bg-gray-50">
           <h3 className="font-semibold">Result</h3>
+
           {result.status === "duplicate" ? (
-            <p className="text-red-600">
-              ⚠️ This idea matches {result.match_percentage}% with:
-              <br />
-              <strong>{result.matched_project.title}</strong> (
-              {result.matched_project.department}, Batch {result.matched_project.batch})
-            </p>
+            <div className="text-red-600">
+              ⚠️ Similarity: {result.match_percentage.toFixed(2)}%
+              <p className="mt-2 font-semibold">Top Matches:</p>
+              <ul>
+                {result.top_matches.map((m, i) => (
+                  <li key={i}>
+                    {m.title} ({(m.score * 100).toFixed(2)}%)
+                  </li>
+                ))}
+              </ul>
+            </div>
           ) : (
             <p className="text-green-600">
-              ✅ Your idea looks original! (Similarity: {result.match_percentage}%)
+              ✅ Unique Idea ({result.match_percentage.toFixed(2)}%)
             </p>
           )}
         </div>
