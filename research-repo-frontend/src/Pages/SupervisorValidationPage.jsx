@@ -67,7 +67,7 @@ function SupervisorValidationPage() {
 
           {result.status === "duplicate" ? (
             <div className="text-red-600">
-              ⚠️ Similarity: {result.match_percentage.toFixed(2)}%
+              ⚠️ Matched
               <p className="mt-2 font-semibold">Top Matches:</p>
               <ul>
                 {result.top_matches.map((m, i) => (
@@ -78,9 +78,17 @@ function SupervisorValidationPage() {
               </ul>
             </div>
           ) : (
-            <p className="text-green-600">
-              ✅ Unique Idea ({result.match_percentage.toFixed(2)}%)
-            </p>
+            <div className="text-green-600">
+              ✅ Unique Idea
+              <p className="mt-2 font-semibold">Top Matches:</p>
+              <ul>
+                {result.top_matches.map((m, i) => (
+                  <li key={i}>
+                    {m.title} ({(m.score * 100).toFixed(2)}%)
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
         </div>
       )}
