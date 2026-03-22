@@ -48,6 +48,9 @@ function IdeaComparisonPage() {
     const formData = {
       title: e.target.title.value,
       abstract: e.target.abstract.value,
+      name: e.target.name.value,
+      department: e.target.department.value,
+      batch: e.target.batch.value,
     };
 
     try {
