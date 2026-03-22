@@ -54,4 +54,6 @@ public interface ProjectRepo extends JpaRepository<Projects, Integer> {
             "JOIN p.uploader u " + // Remove FETCH keyword when using projections
             "WHERE u.userId = :userId")
     List<ProjectsByUserResponseDTO> findProjectTitlesByUploaderId(@Param("userId") int userId);
+
+    List<Projects> findByDepartment(String department);
 }
