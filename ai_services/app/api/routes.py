@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends
+import httpx
 from app.models.request_models import IdeaRequest
 from app.config import THRESHOLD, TOP_K
 from app.services.embedding_service import encode
@@ -45,7 +46,7 @@ def startup_event():
 
 
 @router.post("/analyze")
-def analyze(data: IdeaRequest):
+async def analyze(data: IdeaRequest):
     global projects, embeddings
 
     text = clean_text(data.title + " " + data.abstract)
@@ -64,10 +65,24 @@ def analyze(data: IdeaRequest):
         })
 
     best_score = sims[top_indices[0]]
+    status = "duplicate" if best_score >= THRESHOLD else "unique"
+    match_percentage = float(best_score * 100)
+    
+    spring_payload = {
+        "title": data.title,
+        "name": data.name,
+        "department": data.department,
+        "batch": data.batch,
+        "matched": f"{match_percentage:.2f}%",
+        "status": status
+    }
+    
+    async with httpx.AsyncClient() as client:
+        response = await client.post("http://localhost:8080/api/v1/idea/save", json=spring_payload)
 
     return {
-        "status": "duplicate" if best_score >= THRESHOLD else "unique",
-        "match_percentage": float(best_score * 100),
+        "status": status,
+        "match_percentage": match_percentage,
         "top_matches": results
     }
 
