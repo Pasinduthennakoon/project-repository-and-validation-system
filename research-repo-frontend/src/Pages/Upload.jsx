@@ -7,6 +7,7 @@ const Upload = () => {
   const [form, setForm] = useState({
     title: "",
     description: "",
+    abstraction: "",
     department: "",
     batch: "",
     studentRegNo: "",
@@ -112,7 +113,8 @@ const Upload = () => {
     // --- 2. Prepare the DTO data object ---
     const pendingProjectData = {
       title: form.title,
-      abstract_: form.description, 
+      description: form.description,
+      abstract_: form.abstraction, 
       githubLink: form.githubLink,
       department: form.department,
       regNo: form.studentRegNo,
@@ -137,7 +139,7 @@ const Upload = () => {
             alert(`✅ Project submitted successfully! ID: ${result.data}. Waiting for supervisor approval.`);
             // Reset form on success
             setForm({
-                title: "", description: "", department: "", batch: "",
+                title: "",abstraction: "", description: "", department: "", batch: "",
                 studentRegNo: "", supervisorName: "", githubLink: "", file: null,
             });
             setFilteredSupervisors([]);
@@ -225,6 +227,15 @@ const Upload = () => {
           placeholder="Description"
           className="border rounded px-3 py-2 w-full"
           value={form.description}
+          onChange={handleChange}
+          required
+        />
+
+        <textarea
+          name="abstraction"
+          placeholder="Abstraction"
+          className="border rounded px-3 py-2 w-full h-32"
+          value={form.abstraction}
           onChange={handleChange}
           required
         />
