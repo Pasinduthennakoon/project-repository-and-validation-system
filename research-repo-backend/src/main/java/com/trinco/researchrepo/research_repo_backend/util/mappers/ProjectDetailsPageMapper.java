@@ -28,7 +28,7 @@ public interface ProjectDetailsPageMapper {
         return new ProjectDetailsResponseDTO(
                 project.getProjectId(),
                 project.getTitle(),
-                project.getAbstract_(),
+                project.getDescription(),
                 project.getGithubLink(),
                 project.getPdfLink(),
                 project.getCreatedAt(),
