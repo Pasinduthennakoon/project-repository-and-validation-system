@@ -1,9 +1,11 @@
 package com.trinco.researchrepo.research_repo_backend.util.mappers;
 
 import com.trinco.researchrepo.research_repo_backend.dto.PendingProjectsDTO;
+import com.trinco.researchrepo.research_repo_backend.dto.request.GapInsightsRequestDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.request.PendingProjectSaveRequestDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.request.ProjectSaveRequestDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.response.ProjectsBorwsResponseDTO;
+import com.trinco.researchrepo.research_repo_backend.dto.response.ProjectsStudentDashboardDTO;
 import com.trinco.researchrepo.research_repo_backend.entity.Pending_Projects;
 import com.trinco.researchrepo.research_repo_backend.entity.Projects;
 import org.mapstruct.Mapper;
@@ -26,4 +28,8 @@ public interface ProjectMapper {
     Projects RequestDtoToEntity(ProjectSaveRequestDTO pendingProjectSaveRequestDTO);
 
     List<ProjectsBorwsResponseDTO> projectsBorwseEntityListToProjectsBorwsResponseDTOList(List<Projects> projects);
+
+    List<ProjectsStudentDashboardDTO> projectsToProjectsStudentDashboardDTOList(List<Projects> projects);
+
+    List<GapInsightsRequestDTO> projectListToGapInsightsRequestDTOList(List<Projects> projects);
 }
