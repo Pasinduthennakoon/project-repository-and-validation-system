@@ -6,6 +6,7 @@ import com.trinco.researchrepo.research_repo_backend.dto.response.PendingProject
 import com.trinco.researchrepo.research_repo_backend.entity.*;
 import com.trinco.researchrepo.research_repo_backend.exceptions.EntryDuplicationException;
 import com.trinco.researchrepo.research_repo_backend.repo.*;
+import com.trinco.researchrepo.research_repo_backend.service.AITagService;
 import com.trinco.researchrepo.research_repo_backend.service.GoogleDriveService;
 import com.trinco.researchrepo.research_repo_backend.service.PendingProjectService;
 import com.trinco.researchrepo.research_repo_backend.util.mappers.PendingProjectMapper;
@@ -48,6 +49,9 @@ public class PendingProjectServiceIMPL implements PendingProjectService {
     @Autowired
     private ProjectReviewRepo projectReviewRepo;
 
+    @Autowired
+    private AITagService aiTagService;
+
     @Override
     public String addPendingProject(PendingProjectSaveRequestDTO pendingProjectSaveRequestDTO) {
 
@@ -85,8 +89,11 @@ public class PendingProjectServiceIMPL implements PendingProjectService {
         try {
 
             String googleDriveUrl = googleDriveService.uploadFileToDrive(pdfFile);
-
             projects.setPdfLink(googleDriveUrl);
+
+            List<String> tags = aiTagService.generateTags(projects.getAbstract_());
+            projects.setTags(tags);
+
             projectRepo.save(projects);
 
             Reviews reviews = new Reviews();
