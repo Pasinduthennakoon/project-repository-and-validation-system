@@ -12,6 +12,7 @@ import java.time.LocalDate;
 public class PendingProjectSaveRequestDTO {
 
     private String title;
+    private String description;
     private String abstract_;
     private String githubLink;
     private String tempPdfPath;
