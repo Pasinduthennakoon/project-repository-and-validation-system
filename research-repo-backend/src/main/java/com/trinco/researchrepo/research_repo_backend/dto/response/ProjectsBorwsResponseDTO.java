@@ -13,6 +13,7 @@ import java.util.List;
 public class ProjectsBorwsResponseDTO {
     private int projectId;
     private String title;
+    private String discription;
     private String abstract_;
     private String department;
     private String createdAt;
