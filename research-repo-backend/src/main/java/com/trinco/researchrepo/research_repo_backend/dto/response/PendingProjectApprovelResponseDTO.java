@@ -11,7 +11,7 @@ public class PendingProjectApprovelResponseDTO {
 
     private int pendingProjectId;
     private String title;
-    private String abstract_;
+    private String description;
     private String department;
     private String batch;
     private String createdAt;
