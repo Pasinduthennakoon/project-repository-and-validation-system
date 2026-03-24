@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
 function IdeaComparisonPage() {
+  const { user } = useAuth();
   const [result, setResult] = useState(null);
   const [departments, setDepartments] = useState([]);
   const [loadingDepartments, setLoadingDepartments] = useState(true);
@@ -46,6 +48,7 @@ function IdeaComparisonPage() {
     e.preventDefault();
 
     const formData = {
+      role: user.role,
       title: e.target.title.value,
       abstract: e.target.abstract.value,
       name: e.target.name.value,
