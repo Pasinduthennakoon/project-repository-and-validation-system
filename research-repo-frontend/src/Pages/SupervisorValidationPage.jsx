@@ -1,14 +1,22 @@
 import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
 function SupervisorValidationPage() {
+  const { user } = useAuth();
   const [result, setResult] = useState(null);
+
+  console.log(user);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const formData = {
+      role: user.role,
       title: e.target.title.value,
       abstract: e.target.abstract.value,
+      name: user.userName,
+      department: user.department,
+      batch: "",
     };
 
     try {
