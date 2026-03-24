@@ -20,7 +20,7 @@ const SupervisorApprovalsPage = () => {
         if (!result.ok) {
           throw new Error(result.message);
         }
-
+        console.log("Fetched projects:", result.data); // Debug log
         setProjects(result.data || []); // Set state with fetched data
         setError(null); // Clear any previous errors
       } catch (err) {
