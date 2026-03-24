@@ -46,9 +46,9 @@ const ProjectReviewCard = ({ project, onSubmitReview }) => {
           project.tags.map((tag, i) => (
             <span
               key={i}
-              className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs"
+              className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-semibold"
             >
-              #{tag}
+              {tag}
             </span>
           ))
         ) : (
