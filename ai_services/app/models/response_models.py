@@ -11,3 +11,8 @@ class AnalyzeResponse(BaseModel):
     status: str
     match_percentage: float
     top_matches: List[MatchResult]
+    
+class GapResponse(BaseModel):
+    trending: List[str]
+    underrepresented: List[str]
+    suggestions: List[str]
