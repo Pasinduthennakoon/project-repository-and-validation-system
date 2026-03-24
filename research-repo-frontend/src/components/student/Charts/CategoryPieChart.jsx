@@ -4,10 +4,22 @@ import { Pie } from "react-chartjs-2";
 import "chart.js/auto";
 
 const CategoryPieChart = ({ projects }) => {
-  // Count frequency of tags
+  // Prevent runtime errors when projects is null or empty
+  if (!projects || projects.length === 0) {
+    return (
+      <div className="bg-white p-4 rounded-lg shadow">
+        <h2 className="text-lg font-semibold mb-2">Projects by Category</h2>
+        <p className="text-gray-500">No project data available.</p>
+      </div>
+    );
+  }
+
+  // Count frequency of tags safely
   const tagCounts = {};
   projects.forEach((p) =>
-    p.tags.forEach((tag) => (tagCounts[tag] = (tagCounts[tag] || 0) + 1))
+    p.tags?.forEach((tag) => {
+      tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+    })
   );
 
   const data = {
