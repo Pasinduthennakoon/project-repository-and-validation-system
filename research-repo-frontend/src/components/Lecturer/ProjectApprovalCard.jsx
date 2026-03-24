@@ -13,10 +13,10 @@ const ProjectApprovalCard = ({ project, supervisor, onApprove, onReject }) => {
   // ... (filtering logic remains the same)
 
   // 2. Abstract Field Name Adjustment:
-  const shortAbstract =
-    project.abstract_?.length > 200 // ⬅️ Use abstract_ from DTO
-      ? project.abstract_.substring(0, 200) + "..."
-      : project.abstract_;
+  const shortDescription =
+    project.description?.length > 200 // ⬅️ Use abstract_ from DTO
+      ? project.description.substring(0, 200) + "..."
+      : project.description;
 
   return (
     <div className="border border-gray-300 rounded-lg p-6 bg-white shadow-sm hover:shadow-md transition-shadow">
@@ -34,9 +34,9 @@ const ProjectApprovalCard = ({ project, supervisor, onApprove, onReject }) => {
       </p>
 
       {/* 4. Abstract rendering: */}
-      {project.abstract_ && ( // ⬅️ Check abstract_
+      {project.description && ( // ⬅️ Check abstract_
         <p className="text-gray-700 text-sm mb-4">
-          <strong>Abstract:</strong> {shortAbstract}
+          <strong>Description:</strong> {shortDescription}
         </p>
       )}
 
