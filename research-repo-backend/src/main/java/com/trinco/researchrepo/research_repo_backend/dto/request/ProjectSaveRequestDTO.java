@@ -13,6 +13,7 @@ import java.util.List;
 @Data
 public class ProjectSaveRequestDTO {
     private String title;
+    private String description;
     private String abstract_;
     private String pdfLink;
     private String githubLink;
