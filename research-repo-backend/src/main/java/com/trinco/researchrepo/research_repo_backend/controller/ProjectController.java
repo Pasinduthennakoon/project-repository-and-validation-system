@@ -1,11 +1,14 @@
 package com.trinco.researchrepo.research_repo_backend.controller;
 
 import com.trinco.researchrepo.research_repo_backend.dto.LanguageUsageDTO;
+import com.trinco.researchrepo.research_repo_backend.dto.response.GapInsightsResponceDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.response.ProjectPageDataResponseDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.response.ProjectsBorwsResponseDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.response.ProjectsByUserResponseDTO;
+import com.trinco.researchrepo.research_repo_backend.dto.response.ProjectsStudentDashboardDTO;
 import com.trinco.researchrepo.research_repo_backend.entity.Projects;
 import com.trinco.researchrepo.research_repo_backend.exceptions.NotFoundException;
+import com.trinco.researchrepo.research_repo_backend.service.GapAnalysisService;
 import com.trinco.researchrepo.research_repo_backend.service.ProjectService;
 import com.trinco.researchrepo.research_repo_backend.util.StandardResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +25,9 @@ public class ProjectController {
 
     @Autowired
     private ProjectService projectService;
+
+    @Autowired
+    private GapAnalysisService gapAnalysisService;
 
 
 //get project details(all roles)
@@ -110,6 +116,30 @@ public class ProjectController {
 
         return new ResponseEntity<StandardResponse>(
                 new StandardResponse(200, "success", departments),
+                HttpStatus.OK
+        );
+
+    }
+
+    @GetMapping(
+            path = {"/student_dashboard"}
+    )
+    public ResponseEntity<StandardResponse> getProjectsForStudentDashboard(){
+        List<ProjectsStudentDashboardDTO> projects = projectService.getProjectsForStudentDashboard();
+
+        return new ResponseEntity<StandardResponse>(
+                new StandardResponse(200, "success", projects),
+                HttpStatus.OK
+        );
+
+    }
+
+    @GetMapping("/gap-insights")
+    public ResponseEntity<StandardResponse> getInsights() {
+        GapInsightsResponceDTO insights = gapAnalysisService.getGapInsights();
+        
+        return new ResponseEntity<StandardResponse>(
+                new StandardResponse(200, "success", insights),
                 HttpStatus.OK
         );
 
