@@ -1,9 +1,14 @@
+from typing import List
+
 from fastapi import APIRouter, Depends
 import httpx
-from app.models.request_models import IdeaRequest
+from app.models.request_models import Abstract, GapRequest, IdeaRequest
+from app.models.response_models import GapResponse
 from app.config import THRESHOLD, TOP_K
 from app.services.embedding_service import encode
 from app.services.similarity_service import compute_similarity
+from app.services.tag_generation_service import generate_tags
+from app.services.gap_insigt_services import analyze_projects
 from app.db.crud import fetch_projects, fetch_embeddings, save_embeddings
 from app.utils.text_cleaner import clean_text
 from sqlalchemy.orm import Session
@@ -68,17 +73,18 @@ async def analyze(data: IdeaRequest):
     status = "duplicate" if best_score >= THRESHOLD else "unique"
     match_percentage = float(best_score * 100)
     
-    spring_payload = {
-        "title": data.title,
-        "name": data.name,
-        "department": data.department,
-        "batch": data.batch,
-        "matched": f"{match_percentage:.2f}%",
-        "status": status
-    }
-    
-    async with httpx.AsyncClient() as client:
-        response = await client.post("http://localhost:8080/api/v1/idea/save", json=spring_payload)
+    if(data.role == "STUDENT"):
+        spring_payload = {
+            "title": data.title,
+            "name": data.name,
+            "department": data.department,
+            "batch": data.batch,
+            "matched": f"{match_percentage:.2f}%",
+            "status": status
+        }
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.post("http://localhost:8080/api/v1/idea/save", json=spring_payload)
 
     return {
         "status": status,
@@ -100,3 +106,11 @@ def reindex():
 @router.get("/health")
 def health():
     return {"status": "running"}
+
+@router.post("/generate-tags")
+def generate_tags(abstract: Abstract):
+    return generate_tags(abstract)
+
+@router.post("/gap-insights", response_model=GapResponse)
+def gap_insights(data: List[GapRequest]):
+    return analyze_projects(data)
