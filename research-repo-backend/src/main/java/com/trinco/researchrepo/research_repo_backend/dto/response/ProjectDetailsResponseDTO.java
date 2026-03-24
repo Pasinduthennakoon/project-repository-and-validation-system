@@ -16,7 +16,7 @@ public class ProjectDetailsResponseDTO {
     // Project Info
     private int projectId; // Changed to int based on entity
     private String title;
-    private String abstract_;
+    private String description;
     private String githubLink;
     private String pdfLink;
     private String createdAt;
