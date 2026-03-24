@@ -60,11 +60,12 @@ const Projects = () => {
     // Batch filter
     const matchBatch = !filters.batch || p.batch === filters.batch;
 
-    // Keywords filter (search inside title + abstract)
+    // Keywords filter (search inside title + abstract + description)
     const matchKeywords =
       !filters.keywords ||
       p.title.toLowerCase().includes(filters.keywords.toLowerCase()) ||
-      (p.abstract && p.abstract.toLowerCase().includes(filters.keywords.toLowerCase()));
+      (p.abstract && p.abstract.toLowerCase().includes(filters.keywords.toLowerCase())) ||
+      (p.description && p.description.toLowerCase().includes(filters.keywords.toLowerCase()));
 
     // Tags filter (case-insensitive)
     const matchTags =
