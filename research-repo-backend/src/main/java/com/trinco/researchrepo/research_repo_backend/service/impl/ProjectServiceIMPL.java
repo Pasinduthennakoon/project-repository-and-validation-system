@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ProjectServiceIMPL implements ProjectService {
@@ -99,5 +100,13 @@ public class ProjectServiceIMPL implements ProjectService {
     public List<ProjectsByUserResponseDTO> getMyProjects(int userId) {
         List<ProjectsByUserResponseDTO> departments = projectRepo.findProjectTitlesByUploaderId(userId);
         return departments;
+    }
+
+    @Override
+    public List<ProjectsStudentDashboardDTO> getProjectsForStudentDashboard() {
+        List<Projects> projects = projectRepo.findAllForStudentDashboard();
+        List<ProjectsStudentDashboardDTO> projectsStudentDashboardDTOS = projectMapper.projectsToProjectsStudentDashboardDTOList(projects);
+
+        return projectsStudentDashboardDTOS;
     }
 }
