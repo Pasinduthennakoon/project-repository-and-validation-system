@@ -26,6 +26,9 @@ public class Projects {
     @Column(name = "title", nullable = false)
     private String title;
 
+    @Column(name = "description",nullable = false)
+    private String description;
+
     @Column(name = "abstract", nullable = false)
     private String abstract_;
 
