@@ -4,5 +4,7 @@ sentence-transformers
 scikit-learn
 pymysql
 numpy
+pandas
 sqlalchemy
 python-dotenv
+keybert
