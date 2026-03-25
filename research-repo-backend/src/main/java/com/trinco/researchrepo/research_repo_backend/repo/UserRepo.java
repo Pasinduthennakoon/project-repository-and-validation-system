@@ -20,23 +20,23 @@ public interface UserRepo extends JpaRepository<Users, Integer> {
     boolean existsByEmail(String email);
 
     @Query(value = """
-        SELECT 
-            u.userId AS userId,
-            u.userName AS userName,
-            u.email AS email,
-            u.role AS role,
-            u.department AS department,
-            s.regNo AS regNo,
-            s.batch AS batch
-        FROM 
-            Users u 
-        LEFT JOIN 
-            Students s ON u.userId = s.userId
-        WHERE 
-            (:role IS NULL OR :role = '' OR u.role = :role)
-        ORDER BY 
-            u.userName
-    """)
+                SELECT
+                    u.userId AS userId,
+                    u.userName AS userName,
+                    u.email AS email,
+                    u.role AS role,
+                    u.department AS department,
+                    s.regNo AS regNo,
+                    s.batch AS batch
+                FROM
+                    Users u
+                LEFT JOIN
+                    Students s ON u.userId = s.userId
+                WHERE
+                    (:role IS NULL OR :role = '' OR u.role = :role)
+                ORDER BY
+                    u.userName
+            """)
     List<UserDetailsProjection> findUserManagmentDetailsByRole(@Param("role") String role);
 
     @Query("SELECT DISTINCT u.department FROM Users u WHERE u.department != 'ADMINISTRATION'")
@@ -47,4 +47,9 @@ public interface UserRepo extends JpaRepository<Users, Integer> {
     void deletePhotoById(@Param("userId") int userId);
 
     Users findByEmail(String email);
+
+    long countByRole(String role);
+
+    @Query("SELECT COUNT(u) FROM Users u WHERE u.role = 'STUDENT' AND u.activeState = true")
+    long countActiveStudents();
 }
