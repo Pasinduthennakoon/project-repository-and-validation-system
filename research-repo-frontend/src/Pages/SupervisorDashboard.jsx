@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import SummaryCards from "../components/admin/SummaryCards";
 import TechPieChart from "../components/admin/Charts/TechPieChart";
@@ -7,190 +7,232 @@ import GapAnalysisSection from "../components/admin/GapAnalysisSection";
 import RecentProjectsTable from "../components/admin/RecentProjectsTable";
 import IdeaValidationTable from "../components/admin/IdeaValidationTable";
 import AIAnalysisPanel from "../components/admin/AIAnalysisPanel";
-import { sampleProjects } from "../data/data";
-import { useAuth } from "../context/AuthContext"; // optional
-import usersData from "../data/users.json";
+import { useAuth } from "../context/AuthContext";
+
+const colors = [
+  "#10b981",
+  "#3b82f6",
+  "#f59e0b",
+  "#ef4444",
+  "#8b5cf6",
+  "#14b8a6",
+];
 
 const SupervisorDashboard = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
-  // 🔹 Simulate logged-in supervisor
-  const { user } = useAuth?.() || {
-    user: { name: "Dr. Silva", department: "CS", role: "supervisor" },
+  const department = user?.department; // safe access
+
+  const [recentProjects, setRecentProjects] = useState([]);
+  const [ideas, setIdeas] = useState([]);
+  const [summary, setSummary] = useState({});
+  const [gapInsights, setGapInsights] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // 🔹 Helper to normalize tags
+  const normalizeTags = (tags) => {
+    if (!tags) return [];
+    return Array.isArray(tags) ? tags : [tags];
   };
 
-  // 🔹 All department data
-  const deptDataMap = {
-    CS: {
-      summary: {
-        totalProjects: 42,
-        ideasAnalyzed: 25,
-        activeStudents: 20,
-      },
-      techData: {
-        labels: ["AI", "IoT", "Blockchain", "ML", "Web"],
-        datasets: [
-          {
-            label: "Technologies",
-            data: [15, 10, 5, 12, 8],
-            backgroundColor: [
-              "#6366f1",
-              "#f97316",
-              "#22c55e",
-              "#06b6d4",
-              "#ef4444",
-            ],
-          },
-        ],
-      },
-      trendData: {
-        labels: ["2021", "2022", "2023", "2024", "2025"],
-        datasets: [
-          {
-            label: "AI Projects",
-            data: [5, 12, 19, 28, 37],
-            borderColor: "#10b981",
-            fill: false,
-          },
-          {
-            label: "Cybersecurity Projects",
-            data: [10, 23, 20, 12, 5],
-            borderColor: "#10b981",
-            fill: false,
-          },
-          {
-            label: "blockchain Projects",
-            data: [2, 15, 20, 10, 3],
-            borderColor: "#10b981",
-            fill: false,
-          },
-          {
-            label: "Iot Projects",
-            data: [0, 2, 10, 2, 15],
-            borderColor: "#10b981",
-            fill: false,
-          },
-          {
-            label: "ML Projects",
-            data: [0, 15, 10, 30, 35],
-            borderColor: "#10b981",
-            fill: false,
-          },
-          {
-            label: "Security Projects",
-            data: [0, 6, 10, 12, 5],
-            borderColor: "#10b981",
-            fill: false,
-          },
-        ],
-      },
-    },
-    IT: {
-      summary: {
-        totalProjects: 38,
-        ideasAnalyzed: 20,
-        avgRating: 4.3,
-        activeStudents: 18,
-      },
-      techData: {
-        labels: ["AI", "IoT", "Web", "ML"],
-        datasets: [
-          {
-            data: [10, 12, 8, 10],
-            backgroundColor: ["#3b82f6", "#facc15", "#ef4444", "#10b981"],
-          },
-        ],
-      },
-      trendData: {
-        labels: ["2021", "2022", "2023", "2024", "2025"],
-        datasets: [
-          {
-            label: "IT Projects",
-            data: [4, 8, 10, 15, 18],
-            borderColor: "#3b82f6",
-            fill: false,
-          },
-        ],
-      },
-    },
-    SE: {
-      summary: {
-        totalProjects: 27,
-        ideasAnalyzed: 15,
-        avgRating: 4.1,
-        activeStudents: 12,
-      },
-      techData: {
-        labels: ["AI", "Cloud", "Blockchain", "Testing"],
-        datasets: [
-          {
-            data: [8, 10, 4, 5],
-            backgroundColor: ["#14b8a6", "#f59e0b", "#6366f1", "#ef4444"],
-          },
-        ],
-      },
-      trendData: {
-        labels: ["2021", "2022", "2023", "2024", "2025"],
-        datasets: [
-          {
-            label: "SE Projects",
-            data: [2, 5, 8, 10, 13],
-            borderColor: "#f59e0b",
-            fill: false,
-          },
-        ],
-      },
-    },
-  };
+  // ✅ FETCH DATA
+  useEffect(() => {
+    if (!department) return;
 
-  // ✅ Ensure safe fallback if department missing
-  const department = user?.department || "CS";
-  const data = deptDataMap[department] || deptDataMap["CS"];
+    const fetchData = async () => {
+      try {
+        setLoading(true);
 
-  // 🔹 Count registered students in this department
-  const departmentStudents = usersData.filter(
-    u => u.role === "STUDENT" && u.department === department
-  );
+        const [summaryRes, recentRes, ideaRes, gapRes] = await Promise.all([
+          fetch(
+            `http://localhost:8080/api/supervisor/dashboard/summary?department=${encodeURIComponent(
+              department
+            )}`
+          ),
+          fetch("http://localhost:8080/api/admin/dashboard/projects/recent"),
+          fetch("http://localhost:8080/api/v1/idea/all"),
+          fetch("http://localhost:8080/api/v1/project/gap-insights"),
+        ]);
 
-  const [summary, setSummary] = useState({
-    ...data.summary,
-    registeredStudents: departmentStudents.length,
-  });
-  const [techData, setTechData] = useState(data.techData);
-  const [trendData, setTrendData] = useState(data.trendData);
+        if (
+          !summaryRes.ok ||
+          !recentRes.ok ||
+          !ideaRes.ok ||
+          !gapRes.ok
+        ) {
+          throw new Error("Failed to fetch dashboard data");
+        }
 
-  // 🔹 Filter projects only from this department
-  const filteredProjects = sampleProjects.filter(
-    (p) => p.department === department
-  );
+        const summaryData = await summaryRes.json();
+        const recentData = await recentRes.json();
+        const ideaData = await ideaRes.json();
+        const gapData = await gapRes.json();
+
+        setSummary(summaryData?.data || {});
+        setRecentProjects(recentData?.data || []);
+        setIdeas(ideaData?.data || []);
+        setGapInsights(gapData?.data || null);
+      } catch (err) {
+        console.error(err);
+        setError("Error loading dashboard");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [department]);
+
+  // ✅ Filter projects and ideas by department
+  const deptRecentProjects = useMemo(() => {
+    return recentProjects.filter(
+      (p) =>
+        p.department?.toLowerCase().trim() ===
+        department?.toLowerCase().trim()
+    );
+  }, [recentProjects, department]);
+
+  const deptIdeas = useMemo(() => {
+    return ideas.filter(
+      (i) =>
+        i.department?.toLowerCase().trim() ===
+        department?.toLowerCase().trim()
+    );
+  }, [ideas, department]);
+
+  // ✅ Tech Pie Chart
+  const techData = useMemo(() => {
+    const techCount = {};
+
+    deptRecentProjects.forEach((p) => {
+      normalizeTags(p.tags).forEach((tag) => {
+        techCount[tag] = (techCount[tag] || 0) + 1;
+      });
+    });
+
+    const labels = Object.keys(techCount);
+    const data = Object.values(techCount);
+
+    if (!labels.length || !data.length) return null;
+
+    return {
+      labels,
+      datasets: [
+        {
+          data,
+          backgroundColor: labels.map(
+            (_, i) => colors[i % colors.length]
+          ),
+        },
+      ],
+    };
+  }, [deptRecentProjects]);
+
+  // ✅ Trend Line Chart
+  const trendData = useMemo(() => {
+    if (!deptRecentProjects.length) return null;
+
+    const batches = [...new Set(deptRecentProjects.map((p) => p.batch))].sort();
+    const categories = [
+      ...new Set(
+        deptRecentProjects.flatMap((p) => normalizeTags(p.tags))
+      ),
+    ];
+
+    if (!categories.length) return null;
+
+    const datasets = categories.map((category, index) => ({
+      label: category,
+      data: batches.map(
+        (batch) =>
+          deptRecentProjects.filter(
+            (p) =>
+              p.batch === batch &&
+              normalizeTags(p.tags).includes(category)
+          ).length
+      ),
+      borderColor: colors[index % colors.length],
+      backgroundColor: colors[index % colors.length],
+      tension: 0.3,
+      fill: false,
+    }));
+
+    return { labels: batches, datasets };
+  }, [deptRecentProjects]);
 
   const isValidChartData = (data) =>
-    data?.labels?.length && data?.datasets?.length && data.datasets[0]?.data;
+    data &&
+    Array.isArray(data.labels) &&
+    data.labels.length > 0 &&
+    Array.isArray(data.datasets) &&
+    data.datasets.length > 0;
+
+  // ✅ LOADING & ERROR STATES
+  if (loading) {
+    return (
+      <div className="p-6">
+        <h1 className="text-2xl font-bold">Loading Dashboard...</h1>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 text-red-600">
+        <h1 className="text-xl font-bold">{error}</h1>
+      </div>
+    );
+  }
+
+  if (!department) {
+    return (
+      <div className="p-6">
+        <h1 className="text-xl font-bold">No department assigned</h1>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
       <h1 className="text-3xl font-bold text-gray-800">
-        {department} Department Dashboard
+        {department} Supervisor Dashboard
       </h1>
 
       <SummaryCards summary={summary} />
 
       <div className="grid grid-cols-2 gap-6">
-        {isValidChartData(techData) && <TechPieChart data={techData} />}
-        {isValidChartData(trendData) && <TrendLineChart data={trendData} />}
+        {techData && isValidChartData(techData) && (
+          <TechPieChart data={techData} />
+        )}
+        {trendData && isValidChartData(trendData) && (
+          <TrendLineChart data={trendData} />
+        )}
       </div>
 
-      <GapAnalysisSection department={department} />
+      <GapAnalysisSection data={gapInsights} />
 
+      {/* Recent Projects */}
       <section>
         <h2 className="text-xl font-bold mb-2">
           Recent Projects ({department})
         </h2>
-        <RecentProjectsTable projects={filteredProjects.slice(0, 5)} />
+
+        {deptRecentProjects.length === 0 ? (
+          <p className="text-gray-500">No projects found</p>
+        ) : (
+          <RecentProjectsTable
+            projects={deptRecentProjects.slice(0, 5)}
+          />
+        )}
+
         <div className="text-right mt-2">
           <button
             onClick={() =>
-              navigate("/project/table", { state: { department } })
+              navigate("/project/table", {
+                state: { department },
+              })
             }
             className="text-blue-600 hover:underline"
           >
@@ -199,8 +241,11 @@ const SupervisorDashboard = () => {
         </div>
       </section>
 
-      <IdeaValidationTable department={department} />
-      <AIAnalysisPanel department={department} />
+      {/* Ideas */}
+      <IdeaValidationTable ideas={deptIdeas.slice(0, 3)} />
+
+      {/* AI Panel */}
+      <AIAnalysisPanel projects={deptIdeas} />
     </div>
   );
 };
