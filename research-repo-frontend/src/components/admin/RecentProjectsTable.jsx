@@ -1,9 +1,10 @@
-// src/components/admin/RecentProjectsTable.jsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
 const RecentProjectsTable = ({ projects = [] }) => {
   const navigate = useNavigate();
+
+  console.log(projects);
 
   return (
     <div className="bg-white p-6 rounded shadow">
@@ -15,8 +16,8 @@ const RecentProjectsTable = ({ projects = [] }) => {
               <th className="py-2 px-4 border">Department</th>
               <th className="py-2 px-4 border">Batch</th>
               <th className="py-2 px-4 border">Tags</th>
-              <th className="py-2 px-4 border">Students</th>
-              <th className="py-2 px-4 border">Supervisors</th>
+              <th className="py-2 px-4 border">Student</th>
+              <th className="py-2 px-4 border">Supervisor</th>
               <th className="py-2 px-4 border">PDF</th>
             </tr>
           </thead>
@@ -29,27 +30,44 @@ const RecentProjectsTable = ({ projects = [] }) => {
               </tr>
             ) : (
               projects.map((project) => (
-                <tr key={project.id} className="hover:bg-gray-50 cursor-pointer">
+                <tr
+                  key={project.projectId}
+                  className="hover:bg-gray-50 cursor-pointer"
+                >
                   <td
                     className="py-2 px-4 border text-blue-600"
-                    onClick={() => navigate(`/projects/${project.id}`)}
+                    onClick={() => navigate(`/projects/${project.projectId}`)}
                   >
                     {project.title}
                   </td>
                   <td className="py-2 px-4 border">{project.department}</td>
                   <td className="py-2 px-4 border">{project.batch}</td>
-                  <td className="py-2 px-4 border">{project.tags.join(", ")}</td>
                   <td className="py-2 px-4 border">
-                    {project.students.map((s) => s.name).join(", ")}
+                    {Array.isArray(project.tags) ? project.tags.join(", ") : ""}
                   </td>
                   <td className="py-2 px-4 border">
-                    {project.supervisors.map((s) => s.name).join(", ")}
+                    {project.studentName || "N/A"}
+                  </td>
+                  <td className="py-2 px-4 border">
+                    {project.supervisorName || "N/A"}
                   </td>
                   <td className="py-2 px-4 border">
                     <a
-                      href={project.pdfLink || "#"}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      onClick={() => {
+                        if (!project.pdfLink) return;
+
+                        let fileId = "";
+                        if (project.pdfLink.includes("id=")) {
+                          fileId = project.pdfLink.split("id=")[1];
+                        } else if (project.pdfLink.includes("/d/")) {
+                          fileId = project.pdfLink
+                            .split("/d/")[1]
+                            .split("/")[0];
+                        }
+
+                        const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+                        window.open(downloadUrl, "_blank");
+                      }}
                       className="text-blue-600 hover:underline"
                     >
                       View PDF

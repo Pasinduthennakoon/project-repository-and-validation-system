@@ -1,37 +1,75 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import SummaryCards from "../components/admin/SummaryCards";
 import ProjectsByDeptChart from "../components/admin/Charts/ProjectsByDeptChart";
 import RecentProjectsTable from "../components/admin/RecentProjectsTable";
 import IdeaValidationTable from "../components/admin/IdeaValidationTable";
-import { sampleProjects } from "../data/data";
-import { useNavigate } from "react-router-dom";
 import AIAnalysisPanel from "../components/admin/AIAnalysisPanel";
-import usersData from "../data/users.json";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  // Mock data
-  const totalStudents = usersData.filter(u => u.role === "STUDENT").length;
 
-  const summary = {
-    totalProjects: 245,
-    ideasAnalyzed: 130,
-    activeStudents: 72,
-    registeredStudents: totalStudents, // 🔹 New field
-  };
+  const [summary, setSummary] = useState(null);
+  const [deptData, setDeptData] = useState(null);
+  const [recentProjects, setRecentProjects] = useState([]);
+  const [analysisIdeas, setanalysisIdeas] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const deptData = {
-    labels: ["CS", "IT", "SE", "DS"],
-    datasets: [
-      {
-        label: "Projects",
-        data: [42, 38, 27, 18],
-        backgroundColor: "#3b82f6",
-      },
-    ],
-  };
+  // Fetch all dashboard data
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
 
-  // Helper to check if chart data is valid
+        const [summaryRes, deptRes, projectsRes, ideasRes] = await Promise.all([
+          fetch("http://localhost:8080/api/admin/dashboard/summary"),
+          fetch("http://localhost:8080/api/admin/dashboard/count-by-department"),
+          fetch("http://localhost:8080/api/admin/dashboard/projects/recent"),
+          fetch("http://localhost:8080/api/v1/idea/all"),
+        ]);
+
+        if (!summaryRes.ok || !deptRes.ok || !projectsRes.ok || !ideasRes.ok) {
+          throw new Error("Failed to fetch dashboard data");
+        }
+
+        const summaryData = await summaryRes.json();
+        const deptRaw = await deptRes.json();
+        const projectsData = await projectsRes.json();
+        const ideasData = await ideasRes.json();
+
+        // Transform department data into chart format
+        const formattedDeptData = {
+          labels: deptRaw.data.labels,
+          datasets: [
+            {
+              label: "Projects",
+              data: deptRaw.data.data,
+              backgroundColor: "#3b82f6",
+            },
+          ],
+        };
+
+        setSummary(summaryData.data);
+        setDeptData(formattedDeptData);
+        setRecentProjects(projectsData.data);
+        setanalysisIdeas(ideasData.data);
+      } catch (err) {
+        console.error(err);
+        setError("Error loading dashboard");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  console.log("Summary:", summary);
+  console.log("Department Data:", deptData);
+  console.log("Recent Projects:", recentProjects);
+  console.log("Analysis Ideas:", analysisIdeas);
+  // Validation helper
   const isValidChartData = (data) =>
     data &&
     Array.isArray(data.labels) &&
@@ -40,38 +78,58 @@ const AdminDashboard = () => {
     data.datasets.length > 0 &&
     Array.isArray(data.datasets[0].data);
 
+  // Loading state
+  if (loading) {
+    return (
+      <div className="p-6">
+        <h1 className="text-2xl font-bold">Loading Dashboard...</h1>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="p-6 text-red-600">
+        <h1 className="text-xl font-bold">{error}</h1>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
+      {/* Header */}
       <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
 
-      <SummaryCards summary={summary} />
+      {/* Summary */}
+      {summary && <SummaryCards summary={summary} />}
 
-      <div className="grid grid-cols-2 gap-6">
+      {/* Charts */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {isValidChartData(deptData) && <ProjectsByDeptChart data={deptData} />}
       </div>
 
+      {/* Recent Projects */}
       <div>
         <h2 className="text-xl font-bold mb-2">Recent Projects</h2>
 
-        {/* Show only first 5 rows as preview */}
-        <RecentProjectsTable projects={sampleProjects.slice(0, 5)} />
+        <RecentProjectsTable projects={recentProjects.slice(0, 5)} />
 
         <div className="text-right mt-2">
           <button
-            onClick={() =>
-              navigate("/project/table")
-            }
+            onClick={() => navigate("/project/table")}
             className="text-blue-600 hover:underline"
           >
             View All Projects →
           </button>
         </div>
       </div>
-      <IdeaValidationTable />
-      <div className=" ">
-        <AIAnalysisPanel />
-        {/* You can add other summary cards or charts here */}
-      </div>
+
+      {/* Idea Validation */}
+      <IdeaValidationTable ideas={analysisIdeas.slice(0, 3)} />
+
+      {/* AI Panel */}
+      <AIAnalysisPanel projects={analysisIdeas}/>
     </div>
   );
 };
