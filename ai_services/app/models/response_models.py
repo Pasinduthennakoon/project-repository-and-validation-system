@@ -16,3 +16,7 @@ class GapResponse(BaseModel):
     trending: List[str]
     underrepresented: List[str]
     suggestions: List[str]
+    
+class InsightResponse(BaseModel):
+    totalIdeasAnalyzed: int
+    trendingTopics: List[str]

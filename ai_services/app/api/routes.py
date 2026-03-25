@@ -2,13 +2,14 @@ from typing import List
 
 from fastapi import APIRouter, Depends
 import httpx
-from app.models.request_models import Abstract, GapRequest, IdeaRequest
-from app.models.response_models import GapResponse
+from app.models.request_models import Abstract, GapRequest, IdeaRequest, TitlesRequest
+from app.models.response_models import GapResponse, InsightResponse
 from app.config import THRESHOLD, TOP_K
 from app.services.embedding_service import encode
 from app.services.similarity_service import compute_similarity
 from app.services.tag_generation_service import generate_tags
 from app.services.gap_insigt_services import analyze_projects
+from app.services.ai_idea_analysis import get_trending_topics
 from app.db.crud import fetch_projects, fetch_embeddings, save_embeddings
 from app.utils.text_cleaner import clean_text
 from sqlalchemy.orm import Session
@@ -114,3 +115,12 @@ def generate_tags(abstract: Abstract):
 @router.post("/gap-insights", response_model=GapResponse)
 def gap_insights(data: List[GapRequest]):
     return analyze_projects(data)
+
+@router.post("/ai_analyse_idea", response_model=InsightResponse)
+def analyze_titles(req: TitlesRequest):
+    titles = req.titles
+
+    return {
+        "totalIdeasAnalyzed": len(titles),
+        "trendingTopics": get_trending_topics(titles)
+    }

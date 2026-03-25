@@ -16,3 +16,6 @@ class GapRequest(BaseModel):
     title: str
     tags: Optional[List[str]] = []
     batch: int
+    
+class TitlesRequest(BaseModel):
+    titles: List[str]
