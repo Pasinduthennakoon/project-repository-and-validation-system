@@ -1,7 +1,6 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useAuth } from "../context/AuthContext";
 import RecentProjectsTable from "../components/admin/RecentProjectsTable";
-import { sampleProjects } from "../data/data";
 
 const RecentProjectsPage = () => {
   const { user } = useAuth?.() || {};
@@ -11,39 +10,46 @@ const RecentProjectsPage = () => {
     name: user?.name || "Admin User",
   };
 
+  const [projects, setProjects] = useState([]);
   const [deptFilter, setDeptFilter] = useState(
     currentUser.role === "supervisor" ? currentUser.department : ""
   );
   const [batchFilter, setBatchFilter] = useState("All");
   const [tagFilter, setTagFilter] = useState("All");
 
+  // 🔹 Fetch top 5 recent projects from backend
+  useEffect(() => {
+    fetch("http://localhost:8080/api/admin/dashboard/projects/recent") // your Spring Boot endpoint
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Fetched projects:", data);
+        setProjects(data.data || []); // ensure array
+      })
+      .catch((err) => console.error("Error fetching projects:", err));
+  }, []);
+
   // 🔹 Generate dynamic filter options
   const departments = useMemo(
-    () => [...new Set(sampleProjects.map((p) => p.department))],
-    []
+    () => [...new Set(projects.map((p) => p.department))],
+    [projects]
   );
-
-  const batches = useMemo(() => [...new Set(sampleProjects.map((p) => p.batch))], []);
+  const batches = useMemo(
+    () => [...new Set(projects.map((p) => p.batch))],
+    [projects]
+  );
   const tags = useMemo(
-    () => [...new Set(sampleProjects.flatMap((p) => p.tags))].sort(),
-    []
+    () => [...new Set(projects.flatMap((p) => p.tags || []))].sort(),
+    [projects]
   );
 
   // 🔹 Filter projects
   const filteredProjects = useMemo(() => {
-    return sampleProjects.filter((p) => {
-      // Department filter
+    return projects.filter((p) => {
       const matchesDept =
-        deptFilter === "" ||
-        p.department.toLowerCase() === deptFilter.toLowerCase();
-
-      // Batch filter
+        deptFilter === "" || p.department.toLowerCase() === deptFilter.toLowerCase();
       const matchesBatch = batchFilter === "All" || p.batch === batchFilter;
+      const matchesTag = tagFilter === "All" || (p.tags || []).includes(tagFilter);
 
-      // Tag filter
-      const matchesTag = tagFilter === "All" || p.tags.includes(tagFilter);
-
-      // Default supervisor behavior: only their department if no filter applied
       if (currentUser.role === "supervisor" && deptFilter === "") {
         return (
           p.department.toLowerCase() === currentUser.department.toLowerCase() &&
@@ -54,7 +60,7 @@ const RecentProjectsPage = () => {
 
       return matchesDept && matchesBatch && matchesTag;
     });
-  }, [deptFilter, batchFilter, tagFilter]);
+  }, [projects, deptFilter, batchFilter, tagFilter, currentUser]);
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
