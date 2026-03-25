@@ -18,5 +18,7 @@ public interface AnalysisIdeaRepo extends JpaRepository<Analysed_Idea, Integer> 
 
     @Query("SELECT i FROM Analysed_Idea i ORDER BY i.ideaId DESC")
     List<Analysed_Idea> findIdea();
+
+    long countByDepartment(String department);
 }
 

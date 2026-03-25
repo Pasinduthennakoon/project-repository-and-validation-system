@@ -52,4 +52,9 @@ public interface UserRepo extends JpaRepository<Users, Integer> {
 
     @Query("SELECT COUNT(u) FROM Users u WHERE u.role = 'STUDENT' AND u.activeState = true")
     long countActiveStudents();
+
+    long countByRoleAndDepartment(String role, String department);
+
+    @Query("SELECT COUNT(u) FROM Users u WHERE u.role = 'STUDENT' AND u.activeState = true AND u.department = :department")
+    long countDistinctStudentsByDepartment(String department);
 }

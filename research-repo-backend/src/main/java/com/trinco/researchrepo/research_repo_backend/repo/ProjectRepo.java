@@ -72,4 +72,6 @@ public interface ProjectRepo extends JpaRepository<Projects, Integer> {
         List<Projects> findAllForAdminDashboard();
 
     long count();
+
+    long countByDepartment(String department);
 }
