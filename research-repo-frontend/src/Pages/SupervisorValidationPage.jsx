@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import ResultCard from "../components/cards/ResultCard";
 
 function SupervisorValidationPage() {
   const { user } = useAuth();
@@ -70,32 +71,42 @@ function SupervisorValidationPage() {
       </form>
 
       {result && (
-        <div className="mt-6 p-4 border rounded bg-gray-50">
-          <h3 className="font-semibold">Result</h3>
+        <div className="mt-6">
+          {/* Header */}
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold">Analysis Result</h3>
+            <span className="text-sm text-gray-500">
+              Best Match: {result.match_percentage?.toFixed(2)}%
+            </span>
+          </div>
 
-          {result.status === "duplicate" ? (
-            <div className="text-red-600">
-              ⚠️ Matched
-              <p className="mt-2 font-semibold">Top Matches:</p>
-              <ul>
-                {result.top_matches.map((m, i) => (
-                  <li key={i}>
-                    {m.title} ({(m.score * 100).toFixed(2)}%)
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : (
-            <div className="text-green-600">
-              ✅ Unique Idea
-              <p className="mt-2 font-semibold">Top Matches:</p>
-              <ul>
-                {result.top_matches.map((m, i) => (
-                  <li key={i}>
-                    {m.title} ({(m.score * 100).toFixed(2)}%)
-                  </li>
-                ))}
-              </ul>
+          {/* Status Banner */}
+          <div
+            className={`p-4 rounded-xl mb-5 text-white flex justify-between items-center shadow-md ${
+              result.status === "duplicate" ? "bg-red-500" : "bg-green-500"
+            }`}
+          >
+            <span>
+              {result.status === "duplicate"
+                ? "⚠️ Similar Projects Found"
+                : "✅ Unique Idea"}
+            </span>
+            <span className="text-sm">
+              {result?.top_matches?.length || 0} matches
+            </span>
+          </div>
+
+          {/* Cards */}
+          <div className="grid gap-4">
+            {result?.top_matches?.map((m, i) => (
+              <ResultCard key={i} project={m} />
+            ))}
+          </div>
+
+          {/* Empty */}
+          {result?.top_matches?.length === 0 && (
+            <div className="text-center text-gray-500 mt-6">
+              No similar projects found.
             </div>
           )}
         </div>
