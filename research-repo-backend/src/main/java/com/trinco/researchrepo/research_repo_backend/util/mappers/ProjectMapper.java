@@ -2,6 +2,7 @@ package com.trinco.researchrepo.research_repo_backend.util.mappers;
 
 import com.trinco.researchrepo.research_repo_backend.dto.PendingProjectsDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.request.GapInsightsRequestDTO;
+import com.trinco.researchrepo.research_repo_backend.dto.request.PastProjectUploadRequestDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.request.PendingProjectSaveRequestDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.request.ProjectSaveRequestDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.response.ProjectsBorwsResponseDTO;
@@ -32,4 +33,6 @@ public interface ProjectMapper {
     List<ProjectsStudentDashboardDTO> projectsToProjectsStudentDashboardDTOList(List<Projects> projects);
 
     List<GapInsightsRequestDTO> projectListToGapInsightsRequestDTOList(List<Projects> projects);
+
+    Projects pastProjectUploadRequestDTOToProjects(PastProjectUploadRequestDTO request);
 }

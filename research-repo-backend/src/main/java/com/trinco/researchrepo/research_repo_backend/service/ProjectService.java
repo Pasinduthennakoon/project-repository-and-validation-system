@@ -1,6 +1,7 @@
 package com.trinco.researchrepo.research_repo_backend.service;
 
 import com.trinco.researchrepo.research_repo_backend.dto.LanguageUsageDTO;
+import com.trinco.researchrepo.research_repo_backend.dto.request.PastProjectUploadRequestDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.response.GapInsightsResponceDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.response.ProjectPageDataResponseDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.response.ProjectReviewResponseDTO;
@@ -26,5 +27,7 @@ public interface ProjectService {
     List<ProjectsByUserResponseDTO> getMyProjects(int userId);
 
     List<ProjectsStudentDashboardDTO> getProjectsForStudentDashboard();
+
+    String savePastProject(PastProjectUploadRequestDTO request);
 
 }

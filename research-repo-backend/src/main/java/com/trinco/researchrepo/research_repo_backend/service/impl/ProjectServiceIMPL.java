@@ -1,9 +1,11 @@
 package com.trinco.researchrepo.research_repo_backend.service.impl;
 
 import com.trinco.researchrepo.research_repo_backend.dto.LanguageUsageDTO;
+import com.trinco.researchrepo.research_repo_backend.dto.request.PastProjectUploadRequestDTO;
 import com.trinco.researchrepo.research_repo_backend.dto.response.*;
 import com.trinco.researchrepo.research_repo_backend.entity.*;
 import com.trinco.researchrepo.research_repo_backend.repo.*;
+import com.trinco.researchrepo.research_repo_backend.service.AITagService;
 import com.trinco.researchrepo.research_repo_backend.service.ProjectService;
 import com.trinco.researchrepo.research_repo_backend.util.mappers.CommentMapper;
 import com.trinco.researchrepo.research_repo_backend.util.mappers.ProjectDetailsPageMapper;
@@ -37,6 +39,9 @@ public class ProjectServiceIMPL implements ProjectService {
 
     @Autowired
     private CommentRepo commentRepo;
+
+    @Autowired
+    private AITagService aiTagService;
 
 
     @Override
@@ -108,5 +113,21 @@ public class ProjectServiceIMPL implements ProjectService {
         List<ProjectsStudentDashboardDTO> projectsStudentDashboardDTOS = projectMapper.projectsToProjectsStudentDashboardDTOList(projects);
 
         return projectsStudentDashboardDTOS;
+    }
+
+    @Override
+    public String savePastProject(PastProjectUploadRequestDTO request) {
+        Projects project = projectMapper.pastProjectUploadRequestDTOToProjects(request);
+
+        List<String> tags = aiTagService.generateTags(project.getAbstract_());
+        project.setTags(tags);
+
+        projectRepo.save(project);
+
+        Reviews reviews = new Reviews();
+        reviews.setProject(project);
+        projectReviewRepo.save(reviews);
+
+        return "Project saved successfully";
     }
 }
