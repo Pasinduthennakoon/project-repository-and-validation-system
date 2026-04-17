@@ -22,10 +22,12 @@ public class Pending_Projects {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(name = "description",nullable = false)
+    @Lob
+    @Column(name = "description",nullable = false, columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "abstract",nullable = false)
+    @Lob
+    @Column(name = "abstract", nullable = false, columnDefinition = "LONGTEXT")
     private String abstract_;
 
     @Column(name = "github_link")
