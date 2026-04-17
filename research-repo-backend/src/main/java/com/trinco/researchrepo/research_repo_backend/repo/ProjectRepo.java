@@ -27,8 +27,8 @@ public interface ProjectRepo extends JpaRepository<Projects, Integer> {
     // Fetch project along with uploader -> student, supervisor, reviews
     @Query("""
                 SELECT p FROM Projects p
-                JOIN FETCH p.uploader u
-                JOIN FETCH u.student s
+                LEFT JOIN FETCH p.uploader u
+                LEFT JOIN FETCH u.student s
                 LEFT JOIN FETCH p.supervisor sv
                 LEFT JOIN FETCH p.reviews r
                 WHERE p.projectId = :projectId
@@ -44,7 +44,7 @@ public interface ProjectRepo extends JpaRepository<Projects, Integer> {
 
     @Query("""
                 SELECT p FROM Projects p
-                    JOIN FETCH p.uploader u
+                    LEFT JOIN FETCH p.uploader u
                     WHERE p.projectId NOT IN (
                         SELECT c.project.projectId
                         FROM Comments c
