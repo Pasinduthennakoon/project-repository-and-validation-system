@@ -18,6 +18,7 @@ import AdminApprovalPage from "../Pages/AdminApprovalPage";
 import SupervisorDashboard from "../Pages/SupervisorDashboard";
 import { useAuth } from "../context/AuthContext";
 import Account from "../Pages/Account";
+import UploadProject from "../Pages/UploadProjectPage";
 
 const Routers = () => {
     const { user } = useAuth();
@@ -155,6 +156,15 @@ const Routers = () => {
                     element={
                         <PrivateRoute> 
                             <Account/>
+                        </PrivateRoute>
+                    } 
+                />
+
+                <Route 
+                    path="/past_upload" 
+                    element={
+                        <PrivateRoute allowedRoles={["ADMIN"]}> 
+                            <UploadProject/>
                         </PrivateRoute>
                     } 
                 />
