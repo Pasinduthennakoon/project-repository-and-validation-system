@@ -34,10 +34,21 @@ public interface ProjectDetailsPageMapper {
                 project.getCreatedAt(),
                 project.getTags(),
                 project.getLanguageUsed(),
-                studentEntityToStudentDTO(project.getUploader()),
-                supervisorEntityToSupervisorDTO(project.getSupervisor()),
-                project.getReviews().getWatches(),
-                project.getReviews().getStars()
+                project.getUploader() != null
+                    ? studentEntityToStudentDTO(project.getUploader())
+                    : null,
+
+                project.getSupervisor() != null
+                    ? supervisorEntityToSupervisorDTO(project.getSupervisor())
+                    : null,
+
+                project.getReviews() != null
+                    ? project.getReviews().getWatches()
+                    : 0,
+
+                project.getReviews() != null
+                    ? project.getReviews().getStars()
+                    : 0
 
         );
     }
