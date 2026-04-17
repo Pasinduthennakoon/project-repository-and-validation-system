@@ -7,7 +7,7 @@ from app.models.response_models import GapResponse, InsightResponse
 from app.config import THRESHOLD, TOP_K
 from app.services.embedding_service import encode
 from app.services.similarity_service import compute_similarity
-from app.services.tag_generation_service import generate_tags
+from app.services.tag_generation_service import generate_tags_logic
 from app.services.gap_insigt_services import analyze_projects
 from app.services.ai_idea_analysis import get_trending_topics
 from app.db.crud import fetch_projects, fetch_embeddings, save_embeddings
@@ -110,7 +110,7 @@ def health():
 
 @router.post("/generate-tags")
 def generate_tags(abstract: Abstract):
-    return generate_tags(abstract)
+    return generate_tags_logic(abstract)
 
 @router.post("/gap-insights", response_model=GapResponse)
 def gap_insights(data: List[GapRequest]):
