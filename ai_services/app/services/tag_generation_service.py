@@ -1,42 +1,106 @@
 from keybert import KeyBERT
+from collections import defaultdict
+import re
 
+# Load model once (important for performance)
 kw_model = KeyBERT("distilbert-base-nli-mean-tokens")
 
+# ✅ Clean + fixed TECH_MAP
 TECH_MAP = {
     "machine learning": "ML",
     "ml": "ML",
+    
     "artificial intelligence": "AI",
     "ai": "AI",
+    
     "deep learning": "DL",
-    "react": "React",
-    "spring boot": "Spring Boot",
-    "node": "Node.js",
-    "node.js": "Node.js",
-    "fastapi": "FastAPI",
-    "tensorflow": "TensorFlow",
-    "pytorch": "PyTorch",
-    "python": "Python",
-    "java": "Java",
-    "mysql": "MySQL",
-    "mongodb": "MongoDB",
-    "firebase": "Firebase",
+    "neural network": "DL",
+    "cnn": "DL",
+    "rnn": "DL",
+    "lstm": "DL",
+    "tensorflow": "DL",
+    "pytorch": "DL",
+    "keras": "DL",
+    
     "nlp": "NLP",
+    "natural language processing": "NLP",
+    
+    "computer vision": "Computer Vision",
+    "opencv": "Computer Vision",
+    "yolo": "Computer Vision",
+
+    "javascript": "JavaScript",
+    "react": "JavaScript",
+    "react js": "JavaScript",
+    "reactjs": "JavaScript",
+    "node": "JavaScript",
+    "node js": "JavaScript",
+    "nodejs": "JavaScript",
+
+    "python": "Python",
+    "fastapi": "Python",
+    "flask": "Python",
+    "django": "Python",
+    
+    ".net": "C#",
+    "dotnet": "C#",
+
+    "spring boot": "Java",
+    "java": "Java",
+
     "cybersecurity": "Cybersecurity",
     "blockchain": "Blockchain",
-    "iot": "IOT",
-    "web":"Web Development",
-    "mobile":"Mobile Development",
-    "pc application":"PC Application",
-    "server":"Server Development",
-    "data science":"Data Science",
-    "computer vision":"Computer Vision",
-    "cloud":"Cloud Computing"
+    "iot": "IoT",
+
+    "web": "Web Development",
+    "frontend": "Web Development",
+    
+    "backend": "Server Development",
+    "server": "Server Development",
+    "cloud": "Server Development",
+    
+    "mobile": "Mobile Development",
+    "pc": "Pc Application Development",
 }
 
-def generate_tags(abstract):
-    # Extract keywords with relevance scores
+# Allowed tags (STRICT CONTROL)
+ALLOWED_TAGS = set(TECH_MAP.values())
+
+
+# ✅ Normalize text
+def normalize(text: str) -> str:
+    text = text.lower()
+    text = text.replace(".js", " js")
+    text = re.sub(r"[^\w\s]", " ", text)
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
+
+
+# ✅ Token-safe matching (prevents "java" in "javascript")
+def contains_phrase(text: str, phrase: str) -> bool:
+    pattern = r"\b" + re.escape(phrase) + r"\b"
+    return re.search(pattern, text) is not None
+
+
+# ✅ Rule-based detection
+def detect_technologies(text: str):
+    normalized_text = normalize(text)
+    tag_scores = defaultdict(float)
+
+    for key, value in TECH_MAP.items():
+        if contains_phrase(normalized_text, key):
+            tag_scores[value] += 1.0
+
+    return tag_scores
+
+
+# ✅ MAIN FUNCTION (STRICT)
+def generate_tags_logic(abstract):
+    text = abstract if isinstance(abstract, str) else abstract.text
+
+    # 🔹 Step 1: Extract keywords
     keywords = kw_model.extract_keywords(
-        abstract.text,
+        text,
         keyphrase_ngram_range=(1, 2),
         stop_words="english",
         top_n=10,
@@ -44,17 +108,30 @@ def generate_tags(abstract):
         diversity=0.7
     )
 
-    cleaned_tags = set()
+    tag_scores = defaultdict(float)
 
-    for word, score in keywords:
-        word = word.lower()
+    # 🔹 Step 2: Map ONLY to TECH_MAP
+    for phrase, score in keywords:
+        phrase_norm = normalize(phrase)
 
-        # Check if any known tech appears inside phrase
-        for key in TECH_MAP:
-            if key in word:
-                cleaned_tags.add(TECH_MAP[key])
+        for key, value in TECH_MAP.items():
+            if contains_phrase(phrase_norm, key):
+                tag_scores[value] = max(tag_scores[value], score)
 
-    # Convert to list and limit to 5
-    final_tags = list(cleaned_tags)[:5]
+    # 🔹 Step 3: Strong rule-based detection
+    detected_tech = detect_technologies(text)
+
+    for tech, score in detected_tech.items():
+        tag_scores[tech] = max(tag_scores[tech], score + 0.5)
+
+    # 🔹 Step 4: STRICT FILTER + SORT
+    sorted_tags = sorted(
+        [(tag, score) for tag, score in tag_scores.items() if tag in ALLOWED_TAGS],
+        key=lambda x: x[1],
+        reverse=True
+    )
+
+    # 🔹 Step 5: Top 5 tags only
+    final_tags = [tag for tag, _ in sorted_tags[:5]]
 
     return {"tags": final_tags}
