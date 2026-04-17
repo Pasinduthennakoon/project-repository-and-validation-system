@@ -16,6 +16,8 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
+import com.google.api.services.drive.model.Permission;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -55,9 +57,18 @@ public class GoogleDriveServiceIMPL implements GoogleDriveService {
         fileMetadata.setName(file.getName());
 
         FileContent mediaContent = new FileContent("application/pdf", file);
-        File uploadedFile = service.files().create(fileMetadata, mediaContent)
+        File uploadedFile = service.files()
+                .create(fileMetadata, mediaContent)
                 .setFields("id")
                 .execute();
+
+        Permission permission = new Permission()
+            .setType("anyone")
+            .setRole("reader");
+
+        service.permissions()
+            .create(uploadedFile.getId(), permission)
+            .execute();
 
         return "https://drive.google.com/uc?id=" + uploadedFile.getId();
     }
