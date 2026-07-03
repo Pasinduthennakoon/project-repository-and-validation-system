@@ -124,14 +124,14 @@ const ProjectPage = () => {
               hover:bg-blue-600 hover:text-white 
               hover:scale-105 hover:shadow-lg
               transition rounded-lg
-              ${!project.githubUrl ? "opacity-60" : ""}`}
+              ${!project.githubLink ? "opacity-60" : ""}`}
           >
             <div className="w-[100px] flex justify-center">
               <Github />
             </div>
 
             <span className="text-xl font-bold">
-              {project.githubUrl ? "View Repository" : "Project Repository"}
+              {project.githubLink ? "View Repository" : "Project Repository"}
             </span>
           </div>
 
