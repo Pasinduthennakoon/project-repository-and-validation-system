@@ -88,3 +88,6 @@ out/
 *.tmp
 *.swp
 *.swo
+
+research-repo-backend/src/main/resources/client_secret.json
+research-repo-backend/tokens/StoredCredential
